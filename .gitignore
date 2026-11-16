@@ -1,0 +1,11 @@
+.venv/
+.tmp/
+__pycache__/
+.ipynb_checkpoints/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+outputs/tracking/
+outputs/optuna.db
+outputs/*.joblib
+outputs/finalists/*.joblib

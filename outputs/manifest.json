@@ -1,0 +1,104 @@
+{
+  "version": "20ca652a0599",
+  "data_sha256": "9f475e5773f70f974a3a7f95960f662193e0d59837393e4aeaa833705c544907",
+  "config": {
+    "seed": 42,
+    "threads": 4,
+    "device": "cpu",
+    "development_end": 584,
+    "folds": [
+      [
+        200,
+        296
+      ],
+      [
+        296,
+        392
+      ],
+      [
+        392,
+        488
+      ],
+      [
+        488,
+        584
+      ]
+    ],
+    "trials": {
+      "logistic": 10,
+      "random_forest": 15,
+      "hist": 15,
+      "xgboost": 30,
+      "lightgbm": 30,
+      "catboost": 30
+    }
+  },
+  "features": [
+    "precio_marca_1",
+    "precio_marca_2",
+    "precio_marca_3",
+    "precio_marca_4",
+    "precio_marca_5",
+    "promo_marca_1",
+    "promo_marca_2",
+    "promo_marca_3",
+    "promo_marca_4",
+    "promo_marca_5",
+    "genero",
+    "estado_civil",
+    "edad",
+    "nivel_educacion",
+    "ingreso_anual",
+    "ocupacion",
+    "visitas_previas",
+    "compras_previas",
+    "tasa_previa",
+    "dias_desde_visita",
+    "marca_previa",
+    "cantidad_previa",
+    "dias_desde_compra",
+    "cantidad_media_previa",
+    "visitas_30",
+    "compras_30",
+    "tasa_30",
+    "visitas_60",
+    "compras_60",
+    "tasa_60",
+    "visitas_90",
+    "compras_90",
+    "tasa_90",
+    "preferencia_1",
+    "preferencia_2",
+    "preferencia_3",
+    "preferencia_4",
+    "preferencia_5",
+    "precio_min",
+    "rango_precio",
+    "n_promociones",
+    "precio_relativo_1",
+    "precio_relativo_2",
+    "precio_relativo_3",
+    "precio_relativo_4",
+    "precio_relativo_5"
+  ],
+  "reviewed_source_sha256": {
+    "data.py": "95fc3eab0144712a273f550d36081cfba6666f0fe19f34d6ff9b04629e36c011",
+    "evaluation.py": "28cbd8655b924d6fe90244742607d3d4a2fbf92415a7e718aecdbb7c2d02d673",
+    "modeling.py": "5d3ede090a8767ea49ddfc0a7edfe14cfe5e1cd13442564a7bb7c3f8f7732297",
+    "plotting.py": "828587ab33b092e277f3e05c3b203715fba44b101efd47a4031d817bf3014033",
+    "__init__.py": "24c84f20601098b5396999a387ff0710f5aaefbaa2eb009b1692b7f98e337157"
+  },
+  "review_note": "La version del experimento corresponde al inicio de busqueda; se finalizaron nombres, contratos, auditoria y visualizacion posteriormente, sin cambiar las formulas de features ni los espacios de busqueda.",
+  "package_versions": {
+    "pandas": "3.1.1",
+    "numpy": "2.5.4",
+    "scikit-learn": "1.9.1",
+    "catboost": "1.2.10",
+    "lightgbm": "4.7.0",
+    "xgboost": "3.4.1",
+    "optuna": "5.0.0",
+    "mlflow": "3.18.0",
+    "shap": "0.54.1"
+  },
+  "visual_revision": "Editorial inspirada en publicaciones de McKinsey; adaptacion propia. Modelo y metricas sin cambios."
+}
