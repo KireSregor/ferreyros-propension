@@ -1,0 +1,11 @@
+{
+  "name": "trial_3_fold_1_selection",
+  "architecture": "tabm",
+  "best_epochs": 3,
+  "executed_epochs": 28,
+  "seconds": 6.566774999999325,
+  "stop_reason": "early_stopping",
+  "parameters": 132832,
+  "peak_gpu_memory_bytes": 139824640,
+  "device": "cuda"
+}

@@ -1,0 +1,88 @@
+{
+  "model": "chronological_equal",
+  "cut": 512,
+  "end": 620,
+  "threshold": 0.2093042293281285,
+  "metrics": [
+    {
+      "model": "chronological_equal",
+      "cut": 512,
+      "end": 620,
+      "split": "train",
+      "n": 42527,
+      "threshold": 0.2093042293281285,
+      "precision": 0.42041590009477614,
+      "recall": 0.7184641768292683,
+      "f1": 0.5304399817113917,
+      "auc": 0.7693680988158575,
+      "ap": 0.5777738566933452,
+      "logloss": 0.4624068923321866,
+      "purchase_rate": 0.24680791026877044
+    },
+    {
+      "model": "chronological_equal",
+      "cut": 512,
+      "end": 620,
+      "split": "validation",
+      "n": 8029,
+      "threshold": 0.2093042293281285,
+      "precision": 0.4245614035087719,
+      "recall": 0.6940726577437859,
+      "f1": 0.5268505079825835,
+      "auc": 0.7489912404015264,
+      "ap": 0.5637173289970058,
+      "logloss": 0.48804243723930035,
+      "purchase_rate": 0.260555486361938
+    }
+  ],
+  "fingerprint": "6f61c16faec10526b64fdf084906a487ba8c2bec45fd9f3383bfab2fac33e3c6",
+  "inner_score": 0.5470441298917569,
+  "base_parameters": {
+    "logistic": {
+      "parameters": {
+        "half_life": 634.8843128348796,
+        "C": 2.9794544625913595
+      },
+      "group": "all"
+    },
+    "lightgbm": {
+      "parameters": {
+        "half_life": 110.2679289159861,
+        "learning_rate": 0.05102822580199246,
+        "depth": 4,
+        "reg_lambda": 0.28275856573117575,
+        "reg_alpha": 0.1900351100284253,
+        "colsample": 0.6137554084460873,
+        "min_samples": 828
+      },
+      "group": "history_offers"
+    },
+    "xgboost": {
+      "parameters": {
+        "half_life": 447.47526797597266,
+        "learning_rate": 0.009776271515254441,
+        "depth": 3,
+        "reg_lambda": 0.2682848665467021,
+        "reg_alpha": 9.37678038824223,
+        "colsample": 0.8493192507310232,
+        "min_samples": 8.346109228860733,
+        "subsample": 0.6254233401144095
+      },
+      "group": "history_offers"
+    },
+    "catboost": {
+      "parameters": {
+        "half_life": 165.2248690290588,
+        "learning_rate": 0.02157570266858813,
+        "depth": 4,
+        "reg_lambda": 80.2310229134005,
+        "random_strength": 0.039721107273819126
+      },
+      "group": "all"
+    }
+  },
+  "weights": null,
+  "seconds": 159.25044770000386,
+  "shared_training_group": "chronological_512",
+  "selection": "Base tuning inner1; combiner inner2; threshold inner3; fixed C=.01"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "outer_selection",
+  "architecture": "mlp",
+  "best_epochs": 7,
+  "executed_epochs": 32,
+  "seconds": 6.630408900004113,
+  "stop_reason": "early_stopping",
+  "parameters": 15233,
+  "peak_gpu_memory_bytes": 41135616,
+  "device": "cuda"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "outer_refit",
+  "architecture": "mlp",
+  "best_epochs": 7,
+  "executed_epochs": 7,
+  "seconds": 3.4589279999927385,
+  "stop_reason": "fixed_epochs",
+  "parameters": 15233,
+  "peak_gpu_memory_bytes": 61100032,
+  "device": "cuda"
+}

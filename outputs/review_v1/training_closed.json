@@ -1,0 +1,7 @@
+{
+  "observed_finished_epoch": 1794895293.1537228,
+  "elapsed_session_seconds": 6473.373458862305,
+  "authorized_budget_seconds": 7200,
+  "within_authorized_budget": true,
+  "note": "Observed after all training sessions completed; includes overlap, orchestration and idle intervals. Reporting and notebook verification continue without training."
+}

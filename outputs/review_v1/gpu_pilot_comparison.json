@@ -1,0 +1,8 @@
+{
+  "same_sampled_parameters": true,
+  "cpu_inner_trial_seconds": 61.870519,
+  "gpu_inner_trial_seconds": 151.176097,
+  "gpu_full_pilot_seconds": 183.76729670001077,
+  "status": "pilot_only_not_expanded",
+  "reason": "No throughput improvement observed for this sampled configuration; prioritize completing neural search. Backend stopping iterations may differ."
+}

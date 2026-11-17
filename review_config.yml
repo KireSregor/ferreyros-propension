@@ -1,0 +1,36 @@
+version: review_v1
+development_end: 620
+seed: 42
+seeds: [42, 137, 915]
+training_budget_seconds: 7200
+workers: 4
+threads_per_model: 2
+outer_folds:
+  - [296, 404]
+  - [404, 512]
+  - [512, 620]
+inner_folds:
+  296: [[120, 180], [180, 238], [238, 296]]
+  404: [[220, 296], [296, 350], [350, 404]]
+  512: [[296, 404], [404, 458], [458, 512]]
+trials:
+  logistic: 20
+  lightgbm: 40
+  xgboost: 40
+  catboost: 40
+  neural: 20
+early_stopping:
+  days: 40
+  rounds: 60
+  max_trees: 2000
+  max_epochs: 250
+  min_epochs: 15
+  patience: 25
+search:
+  stage_timeout_seconds: 3600
+  neural_timeout_seconds: 1800
+  plateau_min_trials: 30
+  plateau_patience: 20
+  plateau_delta: 0.0001
+  feature_groups: [history, history_offers, all, enhanced]
+output: outputs/review_v1

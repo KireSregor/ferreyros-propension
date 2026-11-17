@@ -1,0 +1,11 @@
+{
+  "name": "mlp_512_fold_1_refit",
+  "architecture": "mlp",
+  "best_epochs": 2,
+  "executed_epochs": 2,
+  "seconds": 2.2668421999987913,
+  "stop_reason": "fixed_epochs",
+  "parameters": 606721,
+  "peak_gpu_memory_bytes": 53058048,
+  "device": "cuda"
+}

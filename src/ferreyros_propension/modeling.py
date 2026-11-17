@@ -161,6 +161,33 @@ def cross_validate(model_name, parameters, events, predictors, folds, config):
     Las variables históricas se actualizaron secuencialmente antes de cada
     visita. Las etiquetas externas nunca participan en el ajuste del modelo.
     """
+    workers = min(config.get("fold_workers", 1), len(folds))
+    if model_name not in config.get("parallel_models", [model_name]):
+        workers = 1
+    if workers > 1:
+        from joblib import Parallel, delayed, parallel_config
+
+        sequential_config = {**config, "fold_workers": 1}
+        with parallel_config(backend="loky", inner_max_num_threads=config["threads"]):
+            outputs = Parallel(n_jobs=workers)(
+                delayed(cross_validate)(
+                    model_name,
+                    parameters,
+                    events,
+                    predictors,
+                    [fold],
+                    sequential_config,
+                )
+                for fold in folds
+            )
+        results, predictions = [], []
+        for fold_number, (scores, frame) in enumerate(outputs):
+            scores["fold"] = fold_number
+            frame["fold"] = fold_number
+            results.append(scores)
+            predictions.append(frame)
+        return pd.concat(results, ignore_index=True), pd.concat(predictions)
+
     fold_results = []
     prediction_frames = []
     for fold_number, (training_end, validation_end) in enumerate(folds):
@@ -209,6 +236,7 @@ def optimize_family(
     version,
     phase="search",
     budget=None,
+    initial_parameters=None,
 ):
     """Reanuda una búsqueda y vincula cada trial a su run de MLflow.
 
@@ -223,6 +251,10 @@ def optimize_family(
         direction="maximize",
         sampler=optuna.samplers.TPESampler(seed=config["seed"]),
     )
+    if not study.trials and initial_parameters is not None:
+        # Reevaluate the previous candidate under this run; never import scores.
+        study.enqueue_trial(initial_parameters)
+        study.set_user_attr("warm_start_parameters", initial_parameters)
 
     def objective(trial):
         parameters = suggest_parameters(trial, model_name)
@@ -269,6 +301,7 @@ def optimize_family(
             )
             trial.set_user_attr("run_id", run.info.run_id)
             trial.set_user_attr("full_params", parameters)
+            trial.set_user_attr("seconds", time.perf_counter() - started_at)
             return results.ap.mean()
 
     target_trials = budget if budget is not None else config["trials"][model_name]
@@ -277,8 +310,60 @@ def optimize_family(
     )
     remaining = max(0, target_trials - completed)
     print(f"{phase} / {model_name}: {remaining} trials pendientes", flush=True)
-    study.optimize(objective, n_trials=remaining)
+    stopping = config.get("search_stopping", {})
+
+    def stop_after_plateau(study, trial):
+        """Detiene la búsqueda por estancamiento; no garantiza el óptimo."""
+        if (trial.number + 1) % 5 == 0:
+            print(
+                f"{model_name}: trial {trial.number + 1}, mejor AP={study.best_value:.5f}",
+                flush=True,
+            )
+        if search_has_plateaued(study.trials, stopping):
+            study.set_user_attr("stop_reason", "validation_ap_plateau")
+            study.stop()
+
+    if not search_has_plateaued(study.trials, stopping):
+        study.optimize(objective, n_trials=remaining, callbacks=[stop_after_plateau])
+    study.set_user_attr(
+        "completed_trials",
+        sum(item.state == optuna.trial.TrialState.COMPLETE for item in study.trials),
+    )
+    trial_rows = [
+        {
+            "model": model_name,
+            "phase": phase,
+            "trial": item.number,
+            "state": item.state.name,
+            "ap": item.value,
+            "seconds": item.user_attrs.get("seconds"),
+            "params": json.dumps(item.user_attrs.get("full_params", item.params)),
+        }
+        for item in study.trials
+    ]
+    pd.DataFrame(trial_rows).to_csv(
+        output_dir / f"tables/trials_{model_name}_{phase}.csv", index=False
+    )
     return study.best_trial.user_attrs["full_params"]
+
+
+def search_has_plateaued(trials, settings):
+    """Require a minimum budget and patience after a meaningful AP improvement."""
+    if not settings.get("enabled", False):
+        return False
+    completed = [
+        trial for trial in trials if trial.state == optuna.trial.TrialState.COMPLETE
+    ]
+    if len(completed) < settings.get("min_trials", 30):
+        return False
+    best = float("-inf")
+    stale = 0
+    for trial in completed:
+        if trial.value > best + settings.get("min_delta", 0.0001):
+            best, stale = trial.value, 0
+        else:
+            stale += 1
+    return stale >= settings.get("patience", 20)
 
 
 def probability_logits(probabilities):
@@ -424,6 +509,42 @@ def diagnose_finalists(
         )
     pd.DataFrame(ablations).to_csv(output_dir / "tables/ablations.csv", index=False)
 
+    # Same folds and frozen hyperparameters: isolate signal, not a new search.
+    history_columns = groups["historial"]
+    diagnostic_rows = []
+    for label, columns in {
+        "solo_tasa_previa": ["tasa_previa"],
+        "solo_historial": history_columns,
+        "modelo_completo": list(predictors),
+    }.items():
+        if label == "modelo_completo":
+            scores = pd.read_csv(output_dir / "tables/cv.csv")
+            scores = scores[scores.model.eq(winner)].drop(columns="model")
+            predictions = pd.read_csv(output_dir / "tables/oof.csv")
+        else:
+            scores, predictions = cross_validate(
+                winner,
+                parameters[winner],
+                events,
+                predictors[columns],
+                config["folds"],
+                config,
+            )
+        for record in scores.to_dict("records"):
+            fold_predictions = predictions[predictions.fold.eq(record["fold"])]
+            baseline_ap = metrics(fold_predictions.y, fold_predictions.baseline)["ap"]
+            diagnostic_rows.append(
+                {
+                    "variant": label,
+                    **record,
+                    "baseline_ap": baseline_ap,
+                    "delta_ap": record["ap"] - baseline_ap,
+                }
+            )
+    pd.DataFrame(diagnostic_rows).to_csv(
+        output_dir / "tables/history_diagnostic.csv", index=False
+    )
+
     nested_results = []
     for model_name in ranking.index[:2]:
         for training_end, validation_end in config["folds"][1:]:
@@ -501,6 +622,20 @@ def run_experiments(root: Path):
     data_hash = hashlib.sha256(
         (root / "Dataset/compras_data.csv").read_bytes()
     ).hexdigest()
+    initial_parameters = {}
+    previous_manifest_path = output_dir / "manifest.json"
+    if previous_manifest_path.exists() and (output_dir / "best_params.json").exists():
+        previous = json.loads(previous_manifest_path.read_text())
+        compatible = (
+            previous["data_sha256"] == data_hash
+            and previous["features"] == list(predictors)
+            and previous["config"]["folds"] == config["folds"]
+            and previous["config"]["development_end"] == config["development_end"]
+        )
+        if compatible:
+            initial_parameters = json.loads(
+                (output_dir / "best_params.json").read_text()
+            )
     manifest = {
         "version": version,
         "data_sha256": data_hash,
@@ -524,8 +659,10 @@ def run_experiments(root: Path):
     selected_parameters = {}
     fold_tables = []
     out_of_fold = {}
+    timing_rows = []
     with threadpool_limits(limits=config["threads"]):
         for model_name in config["trials"]:
+            search_started = time.perf_counter()
             selected_parameters[model_name] = optimize_family(
                 model_name,
                 events,
@@ -534,7 +671,9 @@ def run_experiments(root: Path):
                 config,
                 output_dir,
                 version,
+                initial_parameters=initial_parameters.get(model_name),
             )
+            search_seconds = time.perf_counter() - search_started
             results, predictions = cross_validate(
                 model_name,
                 selected_parameters[model_name],
@@ -546,6 +685,22 @@ def run_experiments(root: Path):
             results["model"] = model_name
             fold_tables.append(results)
             out_of_fold[model_name] = predictions
+            trials = pd.read_csv(output_dir / f"tables/trials_{model_name}_search.csv")
+            timing_rows.append(
+                {
+                    "model": model_name,
+                    "search_seconds": search_seconds,
+                    "search_and_selected_cv_seconds": time.perf_counter()
+                    - search_started,
+                    "completed_trials": int(trials.state.eq("COMPLETE").sum()),
+                    "max_trials": config["trials"][model_name],
+                    "folds": len(config["folds"]),
+                    "version": version,
+                }
+            )
+            pd.DataFrame(timing_rows).to_csv(
+                output_dir / "tables/training_times.csv", index=False
+            )
             print(f"{model_name}: AP={results.ap.mean():.4f}", flush=True)
             # Checkpoint de lectura: conserva resultados de familias terminadas.
             pd.concat(fold_tables).to_csv(output_dir / "tables/cv.csv", index=False)

@@ -1,0 +1,7 @@
+{
+  "experiment_seconds": 1247.260186899999,
+  "previous_experiment_seconds": 3465.2988802000036,
+  "note": "Incluye b\u00fasqueda, ajuste final y diagn\u00f3sticos; excluye benchmark de velocidad y notebook.",
+  "notebook_seconds": 456.66323649999686,
+  "total_seconds": 1703.9575029999978
+}

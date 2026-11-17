@@ -1,0 +1,11 @@
+{
+  "name": "tabm_512_k32_fold_3_refit",
+  "architecture": "tabm",
+  "best_epochs": 3,
+  "executed_epochs": 3,
+  "seconds": 5.992054200003622,
+  "stop_reason": "fixed_epochs",
+  "parameters": 757184,
+  "peak_gpu_memory_bytes": 461699072,
+  "device": "cuda"
+}

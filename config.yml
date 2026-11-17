@@ -1,12 +1,27 @@
 seed: 42
 threads: 4
+fold_workers: 3
+parallel_models:
+- random_forest
+- catboost
+search_stopping:
+  enabled: true
+  min_trials: 30
+  patience: 20
+  min_delta: 0.0001
 device: cpu
-development_end: 584
-folds: [[200, 296], [296, 392], [392, 488], [488, 584]]
+development_end: 620
+folds:
+- - 296
+  - 404
+- - 404
+  - 512
+- - 512
+  - 620
 trials:
-  logistic: 10
-  random_forest: 15
-  hist: 15
-  xgboost: 30
-  lightgbm: 30
-  catboost: 30
+  logistic: 100
+  random_forest: 100
+  hist: 100
+  xgboost: 100
+  lightgbm: 100
+  catboost: 100

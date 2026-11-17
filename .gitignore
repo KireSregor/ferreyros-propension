@@ -7,5 +7,12 @@ __pycache__/
 .ruff_cache/
 outputs/tracking/
 outputs/optuna.db
+outputs/research_6060/optuna.db
+outputs/audit_round2/optuna.db
+outputs/audit_round2/optuna.db-*
+outputs/research_6060/optuna.db-*
 outputs/*.joblib
 outputs/finalists/*.joblib
+outputs/review_v1/**/*.joblib
+outputs/review_v1/**/*.db
+outputs/review_v1/**/*.db-*

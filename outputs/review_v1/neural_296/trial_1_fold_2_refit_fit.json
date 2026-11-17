@@ -1,0 +1,11 @@
+{
+  "name": "trial_1_fold_2_refit",
+  "architecture": "mlp",
+  "best_epochs": 4,
+  "executed_epochs": 4,
+  "seconds": 1.7041583999962313,
+  "stop_reason": "fixed_epochs",
+  "parameters": 31745,
+  "peak_gpu_memory_bytes": 31693824,
+  "device": "cuda"
+}

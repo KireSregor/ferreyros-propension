@@ -1,0 +1,48 @@
+{
+  "model": "neural_tree_blend",
+  "cut": 296,
+  "end": 404,
+  "threshold": 0.3620104345607934,
+  "metrics": [
+    {
+      "model": "neural_tree_blend",
+      "cut": 296,
+      "end": 404,
+      "split": "train",
+      "n": 25754,
+      "threshold": 0.3620104345607934,
+      "precision": 0.552054502874175,
+      "recall": 0.42341606792945785,
+      "f1": 0.47925330376120506,
+      "auc": 0.7454062051945313,
+      "ap": 0.5336384458557861,
+      "logloss": 0.4684948212172041,
+      "purchase_rate": 0.23778830472936244
+    },
+    {
+      "model": "neural_tree_blend",
+      "cut": 296,
+      "end": 404,
+      "split": "validation",
+      "n": 8409,
+      "threshold": 0.3620104345607934,
+      "precision": 0.6136662286465178,
+      "recall": 0.41382365972529905,
+      "f1": 0.49431066419687747,
+      "auc": 0.7362532862650111,
+      "ap": 0.5565219259611751,
+      "logloss": 0.5014857979973859,
+      "purchase_rate": 0.26840290165299086
+    }
+  ],
+  "fingerprint": "b26c6a38c665670b3adf4370b6190217a154558cc97fc69d945d1273d6f4e8bf",
+  "inner_score": 0.48019496943744533,
+  "neural_weight": 0.75,
+  "base_models": [
+    "catboost",
+    "neural"
+  ],
+  "inner_prediction_correlation": 0.9685326427051161,
+  "seconds": 6.981199600006221,
+  "selection": "Bases, mixing weight and threshold selected internally; internal scores optimistic"
+}

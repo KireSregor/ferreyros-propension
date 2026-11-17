@@ -1,0 +1,45 @@
+{
+  "model": "store_adjusted_rank2",
+  "cut": 404,
+  "end": 512,
+  "threshold": 0.27560261061808,
+  "metrics": [
+    {
+      "model": "store_adjusted_rank2",
+      "cut": 404,
+      "end": 512,
+      "split": "train",
+      "n": 34163,
+      "threshold": 0.27560261061808,
+      "precision": 0.4980847105176754,
+      "recall": 0.5430139601479537,
+      "f1": 0.5195798607146934,
+      "auc": 0.7566753589528404,
+      "ap": 0.5613700005780168,
+      "logloss": 0.4702644351370751,
+      "purchase_rate": 0.24532388841729355
+    },
+    {
+      "model": "store_adjusted_rank2",
+      "cut": 404,
+      "end": 512,
+      "split": "validation",
+      "n": 8364,
+      "threshold": 0.27560261061808,
+      "precision": 0.5116851168511685,
+      "recall": 0.5900709219858156,
+      "f1": 0.5480895915678524,
+      "auc": 0.7723777648395375,
+      "ap": 0.5940431663575002,
+      "logloss": 0.4649596074407288,
+      "purchase_rate": 0.2528694404591105
+    }
+  ],
+  "fingerprint": "6f61c16faec10526b64fdf084906a487ba8c2bec45fd9f3383bfab2fac33e3c6",
+  "underlying_family": "catboost",
+  "beta": 0,
+  "anchor": 0.25796592596334955,
+  "inner_score": 0.5111805246747707,
+  "seconds": 0.3663780999922892,
+  "selection": "Beta and threshold from inner folds; recent rate excludes current day"
+}

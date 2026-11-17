@@ -1,0 +1,37 @@
+{
+  "folds": [
+    {
+      "cut": 404,
+      "parameters": {
+        "group": "history_offers",
+        "half_life": 256,
+        "threshold": 0.27928110277578744,
+        "n_estimators": 650,
+        "learning_rate": 0.01751522584583585,
+        "num_leaves": 8,
+        "max_depth": 3,
+        "min_child_samples": 782,
+        "reg_lambda": 13.69972403656355,
+        "reg_alpha": 22.34828889644735
+      },
+      "inner_score": 0.45433133196113834
+    },
+    {
+      "cut": 512,
+      "parameters": {
+        "group": "all",
+        "half_life": 218,
+        "threshold": 0.26748809421166453,
+        "n_estimators": 250,
+        "learning_rate": 0.010023644653871166,
+        "num_leaves": 10,
+        "max_depth": 2,
+        "min_child_samples": 215,
+        "reg_lambda": 40.410809480298035,
+        "reg_alpha": 1.0996700040374396
+      },
+      "inner_score": 0.4998025562221837
+    }
+  ],
+  "seconds": 65.21350810000149
+}

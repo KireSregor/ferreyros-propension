@@ -1,0 +1,11 @@
+{
+  "name": "tabm_256_k32_fold_2_selection",
+  "architecture": "tabm",
+  "best_epochs": 4,
+  "executed_epochs": 29,
+  "seconds": 17.239841100003105,
+  "stop_reason": "early_stopping",
+  "parameters": 159936,
+  "peak_gpu_memory_bytes": 245604352,
+  "device": "cuda"
+}

@@ -1,0 +1,6 @@
+model,phase,trial,state,ap,seconds,params
+catboost,nested_512,0,COMPLETE,0.5902893267355592,11.326400699996157,"{""iterations"": 250, ""depth"": 7, ""learning_rate"": 0.08741169448864673, ""l2_leaf_reg"": 7.6611007077713635}"
+catboost,nested_512,1,COMPLETE,0.5824187306874342,5.125736100002541,"{""iterations"": 200, ""depth"": 3, ""learning_rate"": 0.0224831270535195, ""l2_leaf_reg"": 19.030368381735816}"
+catboost,nested_512,2,COMPLETE,0.5865523845973033,15.037115200000699,"{""iterations"": 350, ""depth"": 6, ""learning_rate"": 0.020846957895078073, ""l2_leaf_reg"": 27.08160864249967}"
+catboost,nested_512,3,COMPLETE,0.5897092035547338,12.497619900001155,"{""iterations"": 450, ""depth"": 4, ""learning_rate"": 0.028849479442089675, ""l2_leaf_reg"": 1.8659959624904914}"
+catboost,nested_512,4,COMPLETE,0.5846504889707557,8.055110300003435,"{""iterations"": 250, ""depth"": 5, ""learning_rate"": 0.047753845433560704, ""l2_leaf_reg"": 2.6926552514864723}"

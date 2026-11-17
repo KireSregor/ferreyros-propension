@@ -1,0 +1,45 @@
+{
+  "model": "store_adjusted_rank1",
+  "cut": 512,
+  "end": 620,
+  "threshold": 0.296994067263115,
+  "metrics": [
+    {
+      "model": "store_adjusted_rank1",
+      "cut": 512,
+      "end": 620,
+      "split": "train",
+      "n": 42527,
+      "threshold": 0.296994067263115,
+      "precision": 0.5126889601465873,
+      "recall": 0.5331554878048781,
+      "f1": 0.5227219653449162,
+      "auc": 0.7595830908567234,
+      "ap": 0.5661005135329574,
+      "logloss": 0.467750581051398,
+      "purchase_rate": 0.24680791026877044
+    },
+    {
+      "model": "store_adjusted_rank1",
+      "cut": 512,
+      "end": 620,
+      "split": "validation",
+      "n": 8029,
+      "threshold": 0.296994067263115,
+      "precision": 0.4845904298459043,
+      "recall": 0.5712237093690249,
+      "f1": 0.524352786309785,
+      "auc": 0.7507643594259805,
+      "ap": 0.55669915641948,
+      "logloss": 0.4890924410584102,
+      "purchase_rate": 0.260555486361938
+    }
+  ],
+  "fingerprint": "6f61c16faec10526b64fdf084906a487ba8c2bec45fd9f3383bfab2fac33e3c6",
+  "underlying_family": "lightgbm",
+  "beta": 1,
+  "anchor": 0.24988638449330167,
+  "inner_score": 0.5263909806684418,
+  "seconds": 0.781731299997773,
+  "selection": "Beta and threshold from inner folds; recent rate excludes current day"
+}

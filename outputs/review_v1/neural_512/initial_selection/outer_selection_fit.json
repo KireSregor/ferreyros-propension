@@ -1,0 +1,11 @@
+{
+  "name": "outer_selection",
+  "architecture": "tabm",
+  "best_epochs": 52,
+  "executed_epochs": 77,
+  "seconds": 25.3336685999966,
+  "stop_reason": "early_stopping",
+  "parameters": 19616,
+  "peak_gpu_memory_bytes": 65515520,
+  "device": "cuda"
+}

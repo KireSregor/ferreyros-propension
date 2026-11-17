@@ -1,0 +1,28 @@
+{
+  "candidate": "chronological_stacking",
+  "selection": {
+    "C": 0.01,
+    "balance": 0.5500945179584121,
+    "threshold": 0.34391616847943574,
+    "precision": 0.5500945179584121,
+    "recall": 0.550354609929078,
+    "f1": 0.5502245332072796,
+    "tp": 1164,
+    "fp": 952,
+    "fn": 951,
+    "tn": 5297
+  },
+  "validation": {
+    "threshold": 0.34391616847943574,
+    "precision": 0.531102979613173,
+    "recall": 0.48565965583174,
+    "f1": 0.5073657927590511,
+    "tp": 1016,
+    "fp": 897,
+    "fn": 1076,
+    "tn": 5040
+  },
+  "status": "research_only_not_approved",
+  "reason": "Precision exceeds51%; temporal degradation remains; absence of overfitting unproven.",
+  "archive": "research_archive.zip"
+}

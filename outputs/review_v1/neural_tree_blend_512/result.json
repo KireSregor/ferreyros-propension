@@ -1,0 +1,48 @@
+{
+  "model": "neural_tree_blend",
+  "cut": 512,
+  "end": 620,
+  "threshold": 0.2820187946598939,
+  "metrics": [
+    {
+      "model": "neural_tree_blend",
+      "cut": 512,
+      "end": 620,
+      "split": "train",
+      "n": 42527,
+      "threshold": 0.2820187946598939,
+      "precision": 0.5174939675973802,
+      "recall": 0.5721227134146342,
+      "f1": 0.5434389140271493,
+      "auc": 0.7740665709419456,
+      "ap": 0.5849874122145187,
+      "logloss": 0.45853799845160403,
+      "purchase_rate": 0.24680791026877044
+    },
+    {
+      "model": "neural_tree_blend",
+      "cut": 512,
+      "end": 620,
+      "split": "validation",
+      "n": 8029,
+      "threshold": 0.2820187946598939,
+      "precision": 0.4940068493150685,
+      "recall": 0.5516252390057361,
+      "f1": 0.5212285456187895,
+      "auc": 0.7467439343186312,
+      "ap": 0.5548848764132162,
+      "logloss": 0.4904821382521364,
+      "purchase_rate": 0.260555486361938
+    }
+  ],
+  "fingerprint": "0291d68e5069b33284dc96bb88983e048bdf88cfa0df0153f69c09965e387a49",
+  "inner_score": 0.5117676413861465,
+  "neural_weight": 0.5,
+  "base_models": [
+    "lightgbm",
+    "neural"
+  ],
+  "inner_prediction_correlation": 0.9500590908381844,
+  "seconds": 1.394289799995022,
+  "selection": "Bases, mixing weight and threshold selected internally; internal scores optimistic"
+}

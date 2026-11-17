@@ -1,0 +1,39 @@
+{
+  "wall_seconds": 639.5968222000083,
+  "soft_budget_seconds": 600,
+  "fingerprint": "a13f4e10005453329cde4245670b0bfeca6b9d757bd70c209b75b9f2c3f82152",
+  "folds": [
+    {
+      "cut": 296,
+      "variants_completed": [
+        "tabm_256_k32",
+        "tabm_512_k32",
+        "mlp_512"
+      ],
+      "stopped_for_budget": false,
+      "actual_fits": 20,
+      "seconds": 149.11953599999833
+    },
+    {
+      "cut": 404,
+      "variants_completed": [
+        "tabm_256_k32",
+        "tabm_512_k32",
+        "mlp_512"
+      ],
+      "stopped_for_budget": false,
+      "actual_fits": 20,
+      "seconds": 267.3032142000011
+    },
+    {
+      "cut": 512,
+      "variants_completed": [
+        "tabm_256_k32",
+        "tabm_512_k32"
+      ],
+      "stopped_for_budget": true,
+      "actual_fits": 14,
+      "seconds": 220.90578270000697
+    }
+  ]
+}

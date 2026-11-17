@@ -1,0 +1,11 @@
+{
+  "name": "seed_915_selection",
+  "architecture": "mlp",
+  "best_epochs": 4,
+  "executed_epochs": 29,
+  "seconds": 5.709814000001643,
+  "stop_reason": "early_stopping",
+  "parameters": 15233,
+  "peak_gpu_memory_bytes": 41135616,
+  "device": "cuda"
+}

@@ -1,0 +1,17 @@
+{
+  "wall_seconds": 595.6426769999962,
+  "results": [
+    {
+      "cut": 404,
+      "complete_trials": 20,
+      "actual_fits": 122,
+      "executed_epochs": 6837
+    },
+    {
+      "cut": 512,
+      "complete_trials": 20,
+      "actual_fits": 122,
+      "executed_epochs": 3343
+    }
+  ]
+}

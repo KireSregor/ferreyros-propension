@@ -1,0 +1,24 @@
+{
+  "main_complete_optuna_trials": 370,
+  "main_manual_variants": 8,
+  "main_training_fits": 2314,
+  "diagnostic_training_fits": 60,
+  "pilot_training_fits": 8,
+  "total_training_fits_accounted": 2382,
+  "neural_executed_epochs_logged": 15721,
+  "neural_selected_epochs_logged": 10220,
+  "peak_gpu_memory_bytes_logged": 461699072,
+  "failed_trials_captured": 0,
+  "pruned_trials_captured": 0,
+  "running_trials_captured": 0,
+  "duplicate_neural_fit_files_ignored": 0,
+  "notes": [
+    "Classical fit counts inferred from completed trials plus final fit; failed/active partial fits may be unobservable.",
+    "Neural fits counted from *_fit.json including initial_selection and resumed_selection archives and seed diagnostics; identical backup copies of the same named fit metadata are counted once.",
+    "Trial states come from the current cumulative trials.csv only; archived selection.json files are not additional trials or model results.",
+    "Chronological shared training counted once: 21 base fits plus one meta-logistic fit per outer cut.",
+    "GPU pilot is separate from main study trials; synthetic tests and small-sample overfit diagnostics excluded.",
+    "Weighted blends, thresholds and store corrections add no model training fits.",
+    "Counts summarize completed recorded work, not a claim of exhaustive search. Task times must not be summed as wall time."
+  ]
+}

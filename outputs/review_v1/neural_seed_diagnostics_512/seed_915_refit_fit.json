@@ -1,0 +1,11 @@
+{
+  "name": "seed_915_refit",
+  "architecture": "mlp",
+  "best_epochs": 4,
+  "executed_epochs": 4,
+  "seconds": 2.848561199993128,
+  "stop_reason": "fixed_epochs",
+  "parameters": 15233,
+  "peak_gpu_memory_bytes": 61100032,
+  "device": "cuda"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "seed_137_refit",
+  "architecture": "tabm",
+  "best_epochs": 2,
+  "executed_epochs": 2,
+  "seconds": 1.46783389999473,
+  "stop_reason": "fixed_epochs",
+  "parameters": 210656,
+  "peak_gpu_memory_bytes": 155250176,
+  "device": "cuda"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "trial_11_fold_3_refit",
+  "architecture": "tabm",
+  "best_epochs": 48,
+  "executed_epochs": 48,
+  "seconds": 16.130300900011207,
+  "stop_reason": "fixed_epochs",
+  "parameters": 210656,
+  "peak_gpu_memory_bytes": 140979200,
+  "device": "cuda"
+}

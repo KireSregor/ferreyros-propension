@@ -1,0 +1,118 @@
+{
+  "catboost_296": {
+    "completed_trials": 13,
+    "importance": {
+      "random_strength": 0.23609839060173543,
+      "depth": 0.21228368931136737,
+      "feature_group": 0.20347942489825005,
+      "reg_lambda": 0.19544941341062624,
+      "learning_rate": 0.09432323246181663,
+      "half_life": 0.05836584931620436
+    }
+  },
+  "lightgbm_296": {
+    "completed_trials": 33,
+    "importance": {
+      "feature_group": 0.33896700108511907,
+      "half_life": 0.15598408579276513,
+      "learning_rate": 0.1254238781615254,
+      "colsample": 0.12009143935438775,
+      "reg_lambda": 0.08649089252039344,
+      "depth": 0.08374186799602351,
+      "min_samples": 0.06592263155348421,
+      "reg_alpha": 0.023378203536301607
+    }
+  },
+  "lightgbm_404": {
+    "completed_trials": 36,
+    "importance": {
+      "min_samples": 0.6885795776746036,
+      "feature_group": 0.24240298843682206,
+      "half_life": 0.02365141500407368,
+      "reg_lambda": 0.01644327284354141,
+      "reg_alpha": 0.010774681914998358,
+      "colsample": 0.008075469261677761,
+      "learning_rate": 0.008031911267135509,
+      "depth": 0.002040683597147524
+    }
+  },
+  "lightgbm_512": {
+    "completed_trials": 40,
+    "importance": {
+      "half_life": 0.23493249563515453,
+      "feature_group": 0.23371625242153174,
+      "colsample": 0.19217068636368448,
+      "min_samples": 0.1376706599181587,
+      "reg_lambda": 0.13299116698195057,
+      "depth": 0.05929008771103646,
+      "learning_rate": 0.008430069068429063,
+      "reg_alpha": 0.0007985819000545057
+    }
+  },
+  "logistic_296": {
+    "completed_trials": 20,
+    "importance": {
+      "feature_group": 0.5702011402324002,
+      "half_life": 0.3510337460250283,
+      "C": 0.07876511374257159
+    }
+  },
+  "logistic_404": {
+    "completed_trials": 20,
+    "importance": {
+      "feature_group": 0.9599594024430386,
+      "C": 0.023982759352771003,
+      "half_life": 0.016057838204190572
+    }
+  },
+  "logistic_512": {
+    "completed_trials": 20,
+    "importance": {
+      "feature_group": 0.6045461387758916,
+      "half_life": 0.3738930158260502,
+      "C": 0.021560845398058158
+    }
+  },
+  "xgboost_296": {
+    "completed_trials": 40,
+    "importance": {
+      "reg_lambda": 0.6371351661589725,
+      "colsample": 0.15778841470478783,
+      "subsample": 0.0796328480840452,
+      "half_life": 0.038482176433908104,
+      "min_samples": 0.03780056903139281,
+      "learning_rate": 0.027340300872014434,
+      "depth": 0.015385596578503002,
+      "reg_alpha": 0.0047283435174105,
+      "feature_group": 0.0017065846189656135
+    }
+  },
+  "xgboost_404": {
+    "completed_trials": 31,
+    "importance": {
+      "feature_group": 0.4844892990028598,
+      "reg_alpha": 0.1784584909558995,
+      "min_samples": 0.09881769341314295,
+      "colsample": 0.0950674524913227,
+      "half_life": 0.07576247876256266,
+      "subsample": 0.03750569430954288,
+      "learning_rate": 0.02079997740677838,
+      "depth": 0.008648018842317902,
+      "reg_lambda": 0.0004508948155733643
+    }
+  },
+  "xgboost_512": {
+    "completed_trials": 40,
+    "importance": {
+      "feature_group": 0.5606803217209395,
+      "half_life": 0.1782467876585796,
+      "colsample": 0.07893740880824342,
+      "reg_lambda": 0.0723514873240995,
+      "reg_alpha": 0.04469307249767987,
+      "learning_rate": 0.026860047819841203,
+      "subsample": 0.017219999324734277,
+      "min_samples": 0.015584250768071,
+      "depth": 0.005426624077811817
+    }
+  }
+}

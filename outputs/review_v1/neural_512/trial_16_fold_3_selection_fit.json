@@ -1,0 +1,11 @@
+{
+  "name": "trial_16_fold_3_selection",
+  "architecture": "mlp",
+  "best_epochs": 5,
+  "executed_epochs": 30,
+  "seconds": 5.987531400009175,
+  "stop_reason": "early_stopping",
+  "parameters": 20353,
+  "peak_gpu_memory_bytes": 45289984,
+  "device": "cuda"
+}

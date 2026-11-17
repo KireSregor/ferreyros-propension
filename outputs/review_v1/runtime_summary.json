@@ -1,0 +1,139 @@
+{
+  "blend_runtime.json": {
+    "wall_seconds": 12.96833419999166
+  },
+  "calibration_runtime.json": {
+    "wall_seconds": 35.22185960000206,
+    "budget_seconds": 300,
+    "fits_in_completed_folds": 33
+  },
+  "classical_runtime.json": {
+    "wall_seconds": 2267.127048800001,
+    "workers": 4,
+    "threads_per_model": 2
+  },
+  "ensembles_initial_runtime.json": {
+    "wall_seconds": 485.734558199998
+  },
+  "ensembles_runtime.json": {
+    "wall_seconds": 979.5365323000005
+  },
+  "neural_completion_runtime.json": {
+    "wall_seconds": 595.6426769999962,
+    "results": [
+      {
+        "cut": 404,
+        "complete_trials": 20,
+        "actual_fits": 122,
+        "executed_epochs": 6837
+      },
+      {
+        "cut": 512,
+        "complete_trials": 20,
+        "actual_fits": 122,
+        "executed_epochs": 3343
+      }
+    ]
+  },
+  "neural_initial_runtime.json": {
+    "wall_seconds": 1881.506492200002,
+    "soft_budget_seconds": 1800,
+    "fingerprint": "e1d7662ca453babad5182c408d9053c22d488db76420d56586004537363fbd9b",
+    "results": [
+      {
+        "cut": 296,
+        "trials": 13,
+        "complete_trials": 13,
+        "actual_fits": 80,
+        "seconds": 618.747843899997,
+        "executed_epochs": 3024
+      },
+      {
+        "cut": 404,
+        "trials": 12,
+        "complete_trials": 12,
+        "actual_fits": 74,
+        "seconds": 762.8184993000032,
+        "executed_epochs": 2811
+      },
+      {
+        "cut": 512,
+        "trials": 11,
+        "complete_trials": 11,
+        "actual_fits": 68,
+        "seconds": 496.0314045999985,
+        "executed_epochs": 1720
+      }
+    ]
+  },
+  "neural_runtime.json": {
+    "wall_seconds": 1840.158188299989,
+    "soft_budget_seconds": 1800,
+    "fingerprint": "e1d7662ca453babad5182c408d9053c22d488db76420d56586004537363fbd9b",
+    "results": [
+      {
+        "cut": 296,
+        "trials": 20,
+        "complete_trials": 20,
+        "actual_fits": 122,
+        "seconds": 296.48772740000277,
+        "executed_epochs": 4051
+      },
+      {
+        "cut": 404,
+        "trials": 17,
+        "complete_trials": 17,
+        "actual_fits": 104,
+        "seconds": 1073.5946810999885,
+        "executed_epochs": 5710
+      },
+      {
+        "cut": 512,
+        "trials": 18,
+        "complete_trials": 18,
+        "actual_fits": 110,
+        "seconds": 464.3573213000054,
+        "executed_epochs": 2717
+      }
+    ]
+  },
+  "neural_wide_runtime.json": {
+    "wall_seconds": 639.5968222000083,
+    "soft_budget_seconds": 600,
+    "fingerprint": "a13f4e10005453329cde4245670b0bfeca6b9d757bd70c209b75b9f2c3f82152",
+    "folds": [
+      {
+        "cut": 296,
+        "variants_completed": [
+          "tabm_256_k32",
+          "tabm_512_k32",
+          "mlp_512"
+        ],
+        "stopped_for_budget": false,
+        "actual_fits": 20,
+        "seconds": 149.11953599999833
+      },
+      {
+        "cut": 404,
+        "variants_completed": [
+          "tabm_256_k32",
+          "tabm_512_k32",
+          "mlp_512"
+        ],
+        "stopped_for_budget": false,
+        "actual_fits": 20,
+        "seconds": 267.3032142000011
+      },
+      {
+        "cut": 512,
+        "variants_completed": [
+          "tabm_256_k32",
+          "tabm_512_k32"
+        ],
+        "stopped_for_budget": true,
+        "actual_fits": 14,
+        "seconds": 220.90578270000697
+      }
+    ]
+  }
+}

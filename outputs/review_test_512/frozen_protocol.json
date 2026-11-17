@@ -1,0 +1,63 @@
+{
+  "authorization": "User requested test evaluation of the first six procedures",
+  "train": [
+    1,
+    512
+  ],
+  "validation": [
+    513,
+    620
+  ],
+  "test": [
+    621,
+    730
+  ],
+  "refit": false,
+  "threshold_adjustment": false,
+  "history": "Prior observed visits update online; store signals exclude current day",
+  "limitation": "Test was examined historically; not an untouched independent holdout",
+  "artifacts": [
+    {
+      "model": "xgboost",
+      "artifact": "outputs\\review_v1\\xgboost_512\\model.joblib",
+      "sha256": "eb34210f58f8276b0e255639516d6e5401c1f869d22db937ff8c36fae67ca22e",
+      "threshold": 0.2793017029762268,
+      "training_end": 512
+    },
+    {
+      "model": "chronological_weighted",
+      "artifact": "outputs\\review_v1\\chronological_weighted_512\\model.joblib",
+      "sha256": "5e2df64b7ba11c0bd7ab4cef653b6257f8ef1cd02da66ade0360cab072f1e264",
+      "threshold": 0.24857938785580755,
+      "training_end": 512
+    },
+    {
+      "model": "reference",
+      "artifact": "outputs\\review_v1\\reference_512\\model.joblib",
+      "sha256": "b2833b1235e04a1d7815f02275a2b4faf1a1cb2ed80982d159671fe5962d2667",
+      "threshold": 0.2914593748352058,
+      "training_end": 512
+    },
+    {
+      "model": "catboost",
+      "artifact": "outputs\\review_v1\\catboost_512\\model.joblib",
+      "sha256": "5dfa8ceddf3045bd11bb00eeab4399aea977fe9142eac039640c104efab9932a",
+      "threshold": 0.28402643171014996,
+      "training_end": 512
+    },
+    {
+      "model": "lightgbm",
+      "artifact": "outputs\\review_v1\\lightgbm_512\\model.joblib",
+      "sha256": "477c61dfb4890f3528c2633d1a5923dfcaa2e9c5b0014bfccb1865d802db9a0e",
+      "threshold": 0.26420919575391216,
+      "training_end": 512
+    },
+    {
+      "model": "chronological_stack",
+      "artifact": "outputs\\review_v1\\chronological_stack_512\\model.joblib",
+      "sha256": "bc4ec81770b3344220eef96922d14cac7742ec09a9261b01b0bd93eb16c6a5b5",
+      "threshold": 0.1425771374593345,
+      "training_end": 512
+    }
+  ]
+}

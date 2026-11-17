@@ -1,86 +1,58 @@
 # Propensión de compra por visita
 
-Solución para priorizar atención entre visitantes. No estima el efecto causal de una oferta. La categoría/producto, moneda y etiquetas de códigos no están documentados en la base.
+> **Rama de investigación:** conserva experimentos, comparaciones y diagnósticos. No es la entrega simplificada de LightGBM. El código, los parámetros y las tablas se versionan; entornos, cachés, modelos binarios y bases de búsqueda excluidas por `.gitignore` permanecen fuera de Git.
+>
+> Después de cerrar la revisión de desarrollo, el usuario autorizó evaluar seis artefactos entrenados hasta el día 512 en los días 621–730. Esa evaluación, sin reajuste ni cambio de umbral, está en `outputs/review_test_512/`; se reproduce con `evaluate_review_test.py` si están disponibles los artefactos locales. Las referencias siguientes a test reservado describen el alcance de la revisión anterior, no una prohibición vigente ni un test todavía intacto.
 
-## Qué revisar
+La revisión vigente usa **días 1–620** y tres folds temporales exteriores. Los días **621–730 están reservados**: no se consultan ni se evalúan en este flujo. Ya se habían examinado históricamente; no se presentan como un test intacto.
 
-1. [EDA](notebooks/01_eda.ipynb): negocio, calidad, perfil, recurrencia, marcas, precios, promociones e hipótesis.
-2. [Modelado y resultados](notebooks/02_modelado_resultados.ipynb): comparación temporal, optimización, calibración, explicación, limitaciones y valor.
-3. [Código](src/ferreyros_propension): datos, modelado, evaluación y gráficos, en cuatro módulos.
+## Recorrido recomendado
 
-Los notebooks conservan sus salidas para revisión. Los PDF, slides y TXT finales quedan pendientes de revisión con el usuario.
+1. `notebooks/01_eda.ipynb`: datos, negocio, calidad y análisis visual inicial.
+2. `notebooks/02_modelado_resultados.ipynb`: protocolo, resultados por fold, baseline, incertidumbre y errores.
+3. `outputs/review_v1/README.md`: síntesis de la revisión ejecutada.
+4. `outputs/review_v1/PROTOCOL.md`: contrato de predicción, selección, skills y fuentes.
 
-## Instalar
+La conclusión breve queda en `outputs/review_v1/RESULTS.md`; las correcciones auditadas en `AUDIT.md` y el diccionario de predictores en `FEATURES.md`, dentro de esa misma carpeta.
 
-Python 3.12. Crear y activar un entorno virtual y ejecutar desde la raíz:
+Las métricas de entrenamiento y validación se muestran juntas: precisión, recall, F1, AUC, AP y log loss. El criterio de búsqueda es el promedio entre folds internos de **min(precisión, recall)**; F1 desempata. La aspiración 60/60 no es una garantía.
 
-```powershell
-python -m pip install -r requirements.lock
-python -m pip install -e . --no-deps
-```
-
-Seleccionar ese entorno como kernel. En una copia limpia: ejecutar EDA, ejecutar el comando de experimentos de la siguiente sección y después abrir el notebook de modelado. Con resultados ya generados, basta ejecutar los notebooks en orden. Ambos detectan la raíz si se abren desde `notebooks/`. `Dataset/compras_data.csv` nunca se sobrescribe.
-
-## Reproducir experimentos
+## Reproducir con el entorno existente
 
 ```powershell
-python -m ferreyros_propension.modeling
+.venv\Scripts\python.exe run_review.py audit
+.venv\Scripts\python.exe -m ferreyros_propension.review_eda
+.venv\Scripts\python.exe run_review.py classical
+.venv\Scripts\python.exe run_review.py neural
+.venv\Scripts\python.exe run_review.py wide
+.venv\Scripts\python.exe run_review.py neural-resume
+.venv\Scripts\python.exe run_review.py extras
+.venv\Scripts\python.exe run_review.py calibrate
+.venv\Scripts\python.exe run_review.py neural-seeds
+.venv\Scripts\python.exe run_review.py blend
+.venv\Scripts\python.exe run_review.py report
+.venv\Scripts\python.exe run_review.py leader
+.venv\Scripts\python.exe -m pytest tests/test_core.py tests/test_review.py -q
 ```
 
-Los presupuestos y cortes están en `config.yml`. Optuna conserva búsquedas en SQLite; MLflow registra experimentos. Una ejecución con la misma versión reutiliza estudios completos; cambios de código/configuración crean estudios nuevos para no mezclar resultados. La trayectoria exacta de Optuna puede variar entre una búsqueda continua y reanudada.
+`review_config.yml` es la configuración central de esta revisión. Los estudios guardan estado SQLite, parámetros y predicciones. Se rechaza reutilizar resultados con otra huella de datos, configuración o código. La reanudación conserva pruebas completadas; no garantiza la misma trayectoria de propuestas futuras que una ejecución sin interrupciones.
 
-El segundo notebook carga los resultados por defecto. La celda `RERUN_EXPERIMENTS` permite regenerarlos explícitamente. La explicación y algunos diagnósticos pueden recalcularse al ejecutar todas las celdas.
+`neural-resume` completa el objetivo inicial de pruebas si queda presupuesto global. Conserva la selección previa y continúa los mismos estudios; no cambia el criterio ni consulta el test. Ejecutar las etapas neuronales secuencialmente para compartir una sola GPU.
 
-Para inspeccionar MLflow:
+El reloj compartido queda en `outputs/review_v1/training_clock.json`. Para otra sesión de pruebas pendientes con un nuevo presupuesto autorizado, usar `--new-budget`; no borra estudios ni cambia sus parámetros. La entrada rechaza configuraciones que amplíen desarrollo más allá del día 620.
 
-```powershell
-mlflow ui --backend-store-uri sqlite:///outputs/tracking/mlflow.db --host 127.0.0.1
-```
+Cuatro tareas clásicas pueden ejecutarse a la vez; una tarea neuronal utiliza la GPU. Los tiempos por tarea se solapan y no equivalen a tiempo de reloj sumado. Las búsquedas tienen presupuesto y paradas explícitas; completar una búsqueda no prueba un óptimo global.
 
-No hace falta abrir esa interfaz para leer los notebooks. `outputs/tables/` contiene exportaciones para revisión; `outputs/figures/`, figuras; `outputs/optuna.db`, estado del optimizador; `outputs/tracking/`, registro MLflow. No publicar automáticamente datos ni bases de experimentos con identificadores de clientes.
+## Uso y scoring
 
-## Metodología y límites
+Se predice antes del resultado de una visita conocida. Las ofertas del día y el perfil están disponibles; compras de visitas anteriores alimentan el historial. El modelo y su umbral permanecen fijos durante cada validación exterior.
 
-- EDA interpretativo y auditoría descriptiva: días 1–296. La lectura valida la estructura del archivo completo. El EDA ampliado anticipa la propuesta 85/15; el modelado guardado conserva sus cortes originales.
-- Cuatro ventanas expansivas: entrenamiento hasta 200/296/392/488 y validación hasta 296/392/488/584.
-- Benchmark 585–730: **previamente consultado** en el prototipo, no test intacto.
-- Familias: logística, Random Forest, HistGradientBoosting, XGBoost, LightGBM y CatBoost. Referencias constante e histórica.
-- Selección por AP media; también dispersión, AUC, Brier, log loss y capacidad comercial.
-- Históricos estrictamente anteriores y preprocesamiento aprendido dentro del fold. El escenario es futuro de clientes conocidos.
-- Número de iteraciones optimizado explícitamente: **sin early stopping ni pruning** en esta ejecución, para completar todos los folds con un protocolo uniforme.
-- Calibración seleccionada cronológicamente en desarrollo, ablaciones sin retuning y diagnóstico anidado reducido de finalistas. Las familias ya observaron desarrollo: el diagnóstico no elimina todo sesgo de selección.
-- SHAP explica el estimador base antes de calibración; no demuestra causalidad.
+Los nuevos artefactos guardan `feature_builder_version=review_v1`, columnas ordenadas, umbral y fin del entrenamiento. Usar `ferreyros_propension.review.score_review_visits(bundle, history, visits)` con una sola fecha futura e historial completo anterior de la tienda. Las señales globales requieren el historial de toda la tienda, no solo de los clientes puntuados. El resultado entrega cliente, día, probabilidad y decisión binaria.
 
-## Scoring
+El antiguo `score_visits` y los scripts de investigaciones anteriores corresponden a otros constructores/protocolos. Se conservan como historia del proyecto y no son la entrada vigente. No mezclar sus artefactos ni tablas con esta revisión. No se sobrescribe automáticamente un modelo anterior como ganador.
 
-```python
-import joblib
-from ferreyros_propension.data import score_visits
+## Entregables y límites
 
-bundle = joblib.load("outputs/model.joblib")
-predictions = score_visits(bundle, history, visits)
-```
+El PDF original pide EDA, metodología, procesamiento, modelo/ajuste/explicabilidad y captura de valor; sugiere notebook funcional. El ZIP/repositorio, documento de código, documentación PDF y presentación PDF se prepararán cuando el usuario lo decida. Esta revisión no publica ni genera esos entregables finales.
 
-`history` contiene resultados observados en días estrictamente anteriores. `visits` contiene un solo día, identificadores y condiciones disponibles antes de comprar; no necesita resultado, marca o cantidad actuales. Los históricos se calculan internamente. La salida incluye cliente, día, probabilidad y versión. Cargar solo artefactos de origen confiable.
-
-Para el siguiente día, incorporar al historial los resultados realmente observados. No hay API, cloud ni monitoreo desplegado.
-
-## Verificar
-
-```powershell
-python -m pytest -q
-ruff check src tests notebooks
-ruff format --check src tests notebooks
-```
-
-Las pruebas cubren invariancia ante eventos futuros, exclusión del resultado actual, ventanas de calendario, scoring, nombres inválidos y ranking constante. El segundo notebook verifica la equivalencia entre modelo persistido y predicciones guardadas.
-
-Las cifras definitivas se consultan en las tablas y notebooks ejecutados, sin mantener manualmente resultados duplicados. El alcance y las decisiones están en [el plan](PLAN.md).
-
-## Diseño de las visualizaciones
-
-Las figuras y tablas utilizan una adaptación editorial propia: fondo blanco, azul profundo, acento azul, titulares con el hallazgo, cuadrícula reducida y notas de población y fuente. Las tipografías disponibles DejaVu Serif y Sans aportan contraste sin incorporar fuentes de marca. Las paletas son decisiones del proyecto, no especificaciones oficiales de McKinsey. En SHAP, el color y los signos conservan el significado de las contribuciones.
-
-Referencias consultadas: [identidad visual de McKinsey](https://www.mckinsey.com/about-us/new-at-mckinsey-blog/meet-the-new-mckinsey-look/), [caso de diseño de Wolff Olins](https://wolffolins.com/work/mckinsey) y [Vizro, repositorio público de McKinsey](https://github.com/mckinsey/vizro), con [temas y colores documentados](https://vizro.readthedocs.io/en/stable/pages/user-guides/themes/).
-
-Vizro ofrece temas reutilizables para Plotly y dashboards. Aquí se conservan Matplotlib y Seaborn para mantener el flujo existente; el estilo se centraliza en `plotting.py` y se reutiliza también en las explicaciones y tablas de los notebooks. No se utilizan logotipos ni se presenta el resultado como material oficial de la firma.
+Las asociaciones y las métricas predictivas no estiman el efecto incremental de una intervención comercial. Para medir valor se necesitan costes, márgenes y una prueba controlada. Los resultados de desarrollo, ya examinados repetidamente, siguen siendo exploratorios.

@@ -1,0 +1,15 @@
+name,architecture,best_epochs,executed_epochs,seconds,stop_reason,parameters,peak_gpu_memory_bytes,device
+tabm_256_k32_fold_1_selection,tabm,2,27,11.972454900009325,early_stopping,159936,240532480,cuda
+tabm_256_k32_fold_1_refit,tabm,2,2,1.4484970000048634,fixed_epochs,159936,245806592,cuda
+tabm_256_k32_fold_2_selection,tabm,4,29,17.239841100003105,early_stopping,159936,245604352,cuda
+tabm_256_k32_fold_2_refit,tabm,4,4,4.937476099992637,fixed_epochs,159936,248133632,cuda
+tabm_256_k32_fold_3_selection,tabm,5,30,21.46980110000004,early_stopping,159936,248947712,cuda
+tabm_256_k32_fold_3_refit,tabm,5,5,4.688924800007953,fixed_epochs,159936,250816512,cuda
+tabm_512_k32_fold_1_selection,tabm,4,29,29.871293599993805,early_stopping,757184,451415040,cuda
+tabm_512_k32_fold_1_refit,tabm,4,4,5.62570040000719,fixed_epochs,757184,456689152,cuda
+tabm_512_k32_fold_2_selection,tabm,5,30,39.36241570000129,early_stopping,757184,456486912,cuda
+tabm_512_k32_fold_2_refit,tabm,5,5,8.202386299992213,fixed_epochs,757184,459016192,cuda
+tabm_512_k32_fold_3_selection,tabm,3,28,43.24661339999875,early_stopping,757184,459830272,cuda
+tabm_512_k32_fold_3_refit,tabm,3,3,5.992054200003622,fixed_epochs,757184,461699072,cuda
+outer_selection,tabm,7,32,18.504400000005262,early_stopping,159936,251678208,cuda
+outer_refit,tabm,7,7,7.6051447999925585,fixed_epochs,159936,277562880,cuda

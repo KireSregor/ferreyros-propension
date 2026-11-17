@@ -1,0 +1,39 @@
+{
+  "fingerprint": "60a8c806d82e560a8e49270c0df6c524a1a86ac6078b918766a94ac97bbfa904",
+  "metrics": [
+    {
+      "model": "neural",
+      "cut": 512,
+      "end": 620,
+      "split": "train",
+      "threshold": 0.3019305467605591,
+      "n": 42527,
+      "precision": 0.49960194604157454,
+      "recall": 0.538109756097561,
+      "f1": 0.5181413696619421,
+      "auc": 0.7501976889313973,
+      "ap": 0.5535495602165295,
+      "logloss": 0.47297853231430054,
+      "purchase_rate": 0.24680791026877044,
+      "seed": 137,
+      "diagnostic_only": true
+    },
+    {
+      "model": "neural",
+      "cut": 512,
+      "end": 620,
+      "split": "validation",
+      "threshold": 0.3019305467605591,
+      "n": 8029,
+      "precision": 0.4876805437553101,
+      "recall": 0.5487571701720841,
+      "f1": 0.5164192532613585,
+      "auc": 0.7377071262275563,
+      "ap": 0.5411826449989297,
+      "logloss": 0.4953424334526062,
+      "purchase_rate": 0.260555486361938,
+      "seed": 137,
+      "diagnostic_only": true
+    }
+  ]
+}

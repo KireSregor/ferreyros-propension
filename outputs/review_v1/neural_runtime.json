@@ -1,0 +1,31 @@
+{
+  "wall_seconds": 1840.158188299989,
+  "soft_budget_seconds": 1800,
+  "fingerprint": "e1d7662ca453babad5182c408d9053c22d488db76420d56586004537363fbd9b",
+  "results": [
+    {
+      "cut": 296,
+      "trials": 20,
+      "complete_trials": 20,
+      "actual_fits": 122,
+      "seconds": 296.48772740000277,
+      "executed_epochs": 4051
+    },
+    {
+      "cut": 404,
+      "trials": 17,
+      "complete_trials": 17,
+      "actual_fits": 104,
+      "seconds": 1073.5946810999885,
+      "executed_epochs": 5710
+    },
+    {
+      "cut": 512,
+      "trials": 18,
+      "complete_trials": 18,
+      "actual_fits": 110,
+      "seconds": 464.3573213000054,
+      "executed_epochs": 2717
+    }
+  ]
+}

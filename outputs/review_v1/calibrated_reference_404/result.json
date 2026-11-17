@@ -1,0 +1,67 @@
+{
+  "model": "calibrated_reference",
+  "cut": 404,
+  "end": 512,
+  "threshold": 0.2820085515180563,
+  "metrics": [
+    {
+      "model": "calibrated_reference",
+      "cut": 404,
+      "end": 512,
+      "split": "train",
+      "n": 34163,
+      "threshold": 0.2820085515180563,
+      "precision": 0.5325256781669739,
+      "recall": 0.4825199856818995,
+      "f1": 0.5062910798122066,
+      "auc": 0.7555272206951105,
+      "ap": 0.5556434305848763,
+      "logloss": 0.4717182110545355,
+      "purchase_rate": 0.24532388841729355
+    },
+    {
+      "model": "calibrated_reference",
+      "cut": 404,
+      "end": 512,
+      "split": "validation",
+      "n": 8364,
+      "threshold": 0.2820085515180563,
+      "precision": 0.5064672594987873,
+      "recall": 0.592434988179669,
+      "f1": 0.5460884724340815,
+      "auc": 0.7770531606570054,
+      "ap": 0.599952714857391,
+      "logloss": 0.46178406343060585,
+      "purchase_rate": 0.2528694404591105
+    }
+  ],
+  "fingerprint": "6e2204493b67309f578d3dbf33a8aeb305dfb1625996c4e126e25ae46082a46b",
+  "inner_score": 0.4865543682198956,
+  "variant": "platt",
+  "base_training_end": 364,
+  "calibration_days": [
+    365,
+    404
+  ],
+  "base_fits": 4,
+  "calibrator_fits": 7,
+  "total_fits": 11,
+  "trials": 2,
+  "iterations": 400,
+  "seconds": 8.649873000002117,
+  "selection": "Two predefined calibration variants and shared threshold selected on internal folds; exploratory threshold-transfer diagnosis; base never refit after calibration",
+  "variant_scores": [
+    {
+      "variant": "platt",
+      "balance": 0.4865543682198956,
+      "f1": 0.510688629649021,
+      "logloss": 0.5083423565823706
+    },
+    {
+      "variant": "platt_store",
+      "balance": 0.47764290644589,
+      "f1": 0.516997023918862,
+      "logloss": 0.5122544752125885
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "outer_refit",
+  "architecture": "tabm",
+  "best_epochs": 12,
+  "executed_epochs": 12,
+  "seconds": 8.125876600010088,
+  "stop_reason": "fixed_epochs",
+  "parameters": 29984,
+  "peak_gpu_memory_bytes": 91808768,
+  "device": "cuda"
+}

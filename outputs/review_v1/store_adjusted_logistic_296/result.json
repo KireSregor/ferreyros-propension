@@ -1,0 +1,45 @@
+{
+  "model": "store_adjusted_rank1",
+  "cut": 296,
+  "end": 404,
+  "threshold": 0.35125636294856527,
+  "metrics": [
+    {
+      "model": "store_adjusted_rank1",
+      "cut": 296,
+      "end": 404,
+      "split": "train",
+      "n": 25754,
+      "threshold": 0.35125636294856527,
+      "precision": 0.555108948593188,
+      "recall": 0.4284781188765513,
+      "f1": 0.4836420606395724,
+      "auc": 0.7484784940404672,
+      "ap": 0.5393742039346653,
+      "logloss": 0.4661068636837952,
+      "purchase_rate": 0.23778830472936244
+    },
+    {
+      "model": "store_adjusted_rank1",
+      "cut": 296,
+      "end": 404,
+      "split": "validation",
+      "n": 8409,
+      "threshold": 0.35125636294856527,
+      "precision": 0.6216968011126565,
+      "recall": 0.3961010190518387,
+      "f1": 0.4838971583220568,
+      "auc": 0.7403643944313113,
+      "ap": 0.5568314087320934,
+      "logloss": 0.5028328051781871,
+      "purchase_rate": 0.26840290165299086
+    }
+  ],
+  "fingerprint": "6f61c16faec10526b64fdf084906a487ba8c2bec45fd9f3383bfab2fac33e3c6",
+  "underlying_family": "logistic",
+  "beta": 0,
+  "anchor": 0.24360480740105642,
+  "inner_score": 0.48490340251257147,
+  "seconds": 0.147438100000727,
+  "selection": "Beta and threshold from inner folds; recent rate excludes current day"
+}

@@ -1,0 +1,87 @@
+{
+  "variant": "mlp_512",
+  "parameters": {
+    "architecture": "mlp",
+    "width": 512,
+    "depth": 3,
+    "dropout": 0.3,
+    "learning_rate": 0.0005,
+    "weight_decay": 0.001,
+    "quantile_transform": true,
+    "half_life": 180,
+    "batch_size": 512
+  },
+  "threshold": 0.29383599758148193,
+  "inner_score": 0.49216250912807225,
+  "f1": 0.5029409238762743,
+  "logloss": 0.5122172633806864,
+  "seconds": 44.94807579999906,
+  "fits": [
+    {
+      "name": "mlp_512_fold_1_selection",
+      "architecture": "mlp",
+      "best_epochs": 2,
+      "executed_epochs": 27,
+      "seconds": 8.924069900007453,
+      "stop_reason": "early_stopping",
+      "parameters": 606721,
+      "peak_gpu_memory_bytes": 48977408,
+      "device": "cuda"
+    },
+    {
+      "name": "mlp_512_fold_1_refit",
+      "architecture": "mlp",
+      "best_epochs": 2,
+      "executed_epochs": 2,
+      "seconds": 2.2668421999987913,
+      "stop_reason": "fixed_epochs",
+      "parameters": 606721,
+      "peak_gpu_memory_bytes": 53058048,
+      "device": "cuda"
+    },
+    {
+      "name": "mlp_512_fold_2_selection",
+      "architecture": "mlp",
+      "best_epochs": 2,
+      "executed_epochs": 27,
+      "seconds": 12.704753000012715,
+      "stop_reason": "early_stopping",
+      "parameters": 606721,
+      "peak_gpu_memory_bytes": 53434368,
+      "device": "cuda"
+    },
+    {
+      "name": "mlp_512_fold_2_refit",
+      "architecture": "mlp",
+      "best_epochs": 2,
+      "executed_epochs": 2,
+      "seconds": 2.622945399998571,
+      "stop_reason": "fixed_epochs",
+      "parameters": 606721,
+      "peak_gpu_memory_bytes": 56038912,
+      "device": "cuda"
+    },
+    {
+      "name": "mlp_512_fold_3_selection",
+      "architecture": "mlp",
+      "best_epochs": 4,
+      "executed_epochs": 29,
+      "seconds": 14.887414400000125,
+      "stop_reason": "early_stopping",
+      "parameters": 606721,
+      "peak_gpu_memory_bytes": 55543808,
+      "device": "cuda"
+    },
+    {
+      "name": "mlp_512_fold_3_refit",
+      "architecture": "mlp",
+      "best_epochs": 4,
+      "executed_epochs": 4,
+      "seconds": 3.3024265999993077,
+      "stop_reason": "fixed_epochs",
+      "parameters": 606721,
+      "peak_gpu_memory_bytes": 58160640,
+      "device": "cuda"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "wall_seconds": 65.20809860000736,
+  "workers": 4,
+  "threads_per_tree": 2,
+  "trials_per_study": 8
+}

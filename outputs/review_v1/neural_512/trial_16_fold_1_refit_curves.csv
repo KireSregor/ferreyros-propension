@@ -1,0 +1,2 @@
+epoch,train_loss,validation_loss,seconds,learning_rate,gradient_norm_mean,gradient_norm_max
+1,0.47741973400115967,,0.5937227999966126,0.0005881434112790941,1.08100163936615,5.643444538116455

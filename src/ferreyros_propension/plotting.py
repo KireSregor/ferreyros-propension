@@ -68,12 +68,12 @@ EXHIBITS = {
     "08_validacion": (
         "08 · COMPARACIÓN TEMPORAL",
         "Las diferencias entre modelos son pequeñas frente al cambio temporal",
-        "Cuatro ventanas de desarrollo · rango observado, no intervalo de confianza",
+        "Tres ventanas de desarrollo · rango observado, no intervalo de confianza",
     ),
     "09_evaluacion": (
         "09 · EVALUACIÓN",
         "El modelo mejora el ranking frente al historial del cliente",
-        "Benchmark días 585–730 previamente consultado · no es un test intacto",
+        "Benchmark días 621–730 previamente consultado · no es un test intacto",
     ),
     "10_shap_global": (
         "10 · EXPLICACIÓN GLOBAL",
@@ -566,7 +566,7 @@ def evaluation_figures(cv, pred, out):
     )
     axes[1].set_xticks(np.arange(len(comparison)), comparison.index, rotation=45)
     axes[1].set(
-        title="Media y rango de AP entre cuatro periodos", ylabel="Average precision"
+        title="Media y rango de AP entre tres periodos", ylabel="Average precision"
     )
     save(figure, out, "08_validacion")
     figure, axes = plt.subplots(2, 2, figsize=(12, 9))
@@ -608,5 +608,5 @@ def evaluation_figures(cv, pred, out):
     )
     for axis in axes.flat:
         axis.legend()
-    figure.suptitle("Benchmark días 585–730 previamente consultado", y=1.02)
+    figure.suptitle("Benchmark días 621–730 previamente consultado", y=1.02)
     save(figure, out, "09_evaluacion")

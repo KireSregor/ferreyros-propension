@@ -1,0 +1,38 @@
+{
+  "seconds": 94.76776660000905,
+  "max_seconds": 300,
+  "coverage": [
+    {
+      "cut": 296,
+      "seed": 137,
+      "status": "completed"
+    },
+    {
+      "cut": 296,
+      "seed": 915,
+      "status": "completed"
+    },
+    {
+      "cut": 404,
+      "seed": 137,
+      "status": "completed"
+    },
+    {
+      "cut": 404,
+      "seed": 915,
+      "status": "completed"
+    },
+    {
+      "cut": 512,
+      "seed": 137,
+      "status": "completed"
+    },
+    {
+      "cut": 512,
+      "seed": 915,
+      "status": "completed"
+    }
+  ],
+  "base_seed": 42,
+  "selection": "None; fixed original threshold and parameters"
+}

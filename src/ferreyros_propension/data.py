@@ -18,9 +18,16 @@ PROMOS = [f"promo_marca_{i}" for i in range(1, 6)]
 CATEGORICAL = ["genero", "estado_civil", "nivel_educacion", "ocupacion", "marca_previa"]
 
 
-def load_data(path: str | Path) -> pd.DataFrame:
+def load_data(path: str | Path, end_day: int | None = None) -> pd.DataFrame:
     """Lee sin modificar el origen; la clave cliente/día debe ser inequívoca."""
-    data = pd.read_csv(path).sort_values(["id", "dia_visita"]).reset_index(drop=True)
+    if end_day is None:
+        data = pd.read_csv(path)
+    else:
+        data = pd.concat(
+            chunk.loc[chunk.dia_visita.le(end_day)]
+            for chunk in pd.read_csv(path, chunksize=10000)
+        )
+    data = data.sort_values(["id", "dia_visita"]).reset_index(drop=True)
     if data.duplicated(["id", "dia_visita"]).any():
         raise ValueError("Hay visitas múltiples por cliente/día: falta orden intradía.")
     if not data.incidencia_compra.isin([0, 1]).all():

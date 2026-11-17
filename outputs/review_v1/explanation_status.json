@@ -1,0 +1,18 @@
+{
+  "folds": [
+    {
+      "cut": 296,
+      "complete": true
+    },
+    {
+      "cut": 404,
+      "complete": true
+    },
+    {
+      "cut": 512,
+      "complete": true
+    }
+  ],
+  "seconds": 19.64655029999267,
+  "max_seconds": 120
+}
