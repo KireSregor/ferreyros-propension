@@ -149,16 +149,14 @@ def show_importance(bundle, features, events, config):
     transformer, estimator = bundle["model"].steps[0][1], bundle["model"].steps[-1][1]
     contributions = estimator.predict(transformer.transform(sample), pred_contrib=True)
     names = transformer.get_feature_names_out()
-    importance = (
-        pd.Series(np.abs(contributions[:, :-1]).mean(axis=0), index=names)
-        .nlargest(15)
-        .sort_values()
-    )
-    fig, ax = plt.subplots(figsize=(9, 5))
+    importance = pd.Series(
+        np.abs(contributions[:, :-1]).mean(axis=0), index=names
+    ).sort_values()
+    fig, ax = plt.subplots(figsize=(10, 7))
     importance.plot.barh(ax=ax, color="#2251FF")
     ax.set(
         xlabel="Media |contribución SHAP|",
-        title="Las 15 variables con mayor contribución al modelo",
+        title=f"Contribución de las {len(importance)} variables del modelo",
     )
     fig.tight_layout()
     plt.show()
