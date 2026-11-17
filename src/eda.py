@@ -244,7 +244,7 @@ def quality_plot(data, end_day=296):
     figure, axes = _canvas(
         "La calidad y el significado de los campos se comprueban antes de modelar",
         f"{_period(initial)} · Auditoría de la base recibida · El nombre de un campo no demuestra su significado",
-        figsize=(14, 6.5),
+        figsize=(17, 7.5),
     )
     axes[0].axis("off")
     labels = {
@@ -271,8 +271,8 @@ def quality_plot(data, end_day=296):
         cell.set_facecolor(NAVY if row == 0 else (LIGHT if row % 2 else "white"))
         cell.set_text_props(color="white" if row == 0 else NAVY)
     names = {
-        "ultima_marca_comprada": "Marca original",
-        "ultima_cantidad_comprada": "Cantidad original",
+        "ultima_marca_comprada": "ultima_marca_comprada",
+        "ultima_cantidad_comprada": "ultima_cantidad_comprada",
     }
     hypotheses = {
         "visita_anterior": "visita anterior",
@@ -281,7 +281,7 @@ def quality_plot(data, end_day=296):
         "incidencia_visita_anterior": "compra sí/no anterior",
     }
     bar_labels = [
-        f"{names[row.variable]}: {hypotheses[row.hipotesis]}"
+        f"{names[row.variable]}\ncomparada con {hypotheses[row.hipotesis]}"
         for row in definitions.itertuples()
     ]
     axes[1].barh(np.arange(len(definitions)), definitions.coincidencia, color=BLUE)
@@ -289,7 +289,7 @@ def quality_plot(data, end_day=296):
     axes[1].invert_yaxis()
     axes[1].set(
         xlim=(0, 1.14),
-        title="Coincidencia con distintas interpretaciones",
+        title="¿Qué representa cada variable del archivo?",
         xlabel="Proporción de visitas coincidentes",
     )
     axes[1].xaxis.set_major_formatter(PercentFormatter(1))
