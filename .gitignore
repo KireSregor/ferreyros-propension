@@ -9,3 +9,6 @@ outputs/tracking/
 outputs/optuna.db
 outputs/*.joblib
 outputs/finalists/*.joblib
+outputs/
+
+entregables/

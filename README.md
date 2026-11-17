@@ -1,86 +1,65 @@
-# Propensión de compra por visita
+# Propensión de compra · LightGBM
 
-Solución para priorizar atención entre visitantes. No estima el efecto causal de una oferta. La categoría/producto, moneda y etiquetas de códigos no están documentados en la base.
+Abrir [el notebook](notebooks/propension_lightgbm.ipynb) y ejecutar las celdas en orden. Reconstruye EDA, selección de 17 variables, ajuste con Optuna, evaluación y scoring desde el CSV. No carga modelos ni parámetros ganadores.
 
-## Qué revisar
+## Ejecutar
 
-1. [EDA](notebooks/01_eda.ipynb): negocio, calidad, perfil, recurrencia, marcas, precios, promociones e hipótesis.
-2. [Modelado y resultados](notebooks/02_modelado_resultados.ipynb): comparación temporal, optimización, calibración, explicación, limitaciones y valor.
-3. [Código](src/ferreyros_propension): datos, modelado, evaluación y gráficos, en cuatro módulos.
-
-Los notebooks conservan sus salidas para revisión. Los PDF, slides y TXT finales quedan pendientes de revisión con el usuario.
-
-## Instalar
-
-Python 3.12. Crear y activar un entorno virtual y ejecutar desde la raíz:
+Python 3.12, desde la raíz del proyecto:
 
 ```powershell
-python -m pip install -r requirements.lock
-python -m pip install -e . --no-deps
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.lock
+.venv\Scripts\python.exe run_notebook.py
 ```
 
-Seleccionar ese entorno como kernel. En una copia limpia: ejecutar EDA, ejecutar el comando de experimentos de la siguiente sección y después abrir el notebook de modelado. Con resultados ya generados, basta ejecutar los notebooks en orden. Ambos detectan la raíz si se abren desde `notebooks/`. `Dataset/compras_data.csv` nunca se sobrescribe.
+También se puede ejecutar desde VS Code/Jupyter seleccionando ese entorno. No es necesario instalar el proyecto como paquete. La primera celda contiene los parámetros de ejecución; `src/training.py` define los cortes temporales y el espacio de búsqueda.
 
-## Reproducir experimentos
+## Estructura
 
-```powershell
-python -m ferreyros_propension.modeling
+```text
+Dataset/                         Datos originales y diccionario
+notebooks/propension_lightgbm.ipynb  Recorrido y resultados paso a paso
+src/
+  data.py                        Lectura, controles y variables base
+  feature_research.py            Historial y variables candidatas
+  training.py                    LightGBM, selección, Optuna y scoring
+  workflow.py                    Ejecución de folds y exportación
+  eda.py                         Gráficas exploratorias desde los datos
+  reporting.py                   Tablas, métricas y explicabilidad
+  plotting.py                    Estilo visual compartido
+run_notebook.py                   Ejecución con kernel limpio
+FEATURES.md                      Diccionario de los 17 predictores
+requirements.lock                Dependencias fijadas
 ```
 
-Los presupuestos y cortes están en `config.yml`. Optuna conserva búsquedas en SQLite; MLflow registra experimentos. Una ejecución con la misma versión reutiliza estudios completos; cambios de código/configuración crean estudios nuevos para no mezclar resultados. La trayectoria exacta de Optuna puede variar entre una búsqueda continua y reanudada.
+Los módulos están directamente en `src`; `__init__.py` permite imports relativos. El notebook muestra decisiones, configuración y resultados; los módulos contienen la implementación y las gráficas.
 
-El segundo notebook carga los resultados por defecto. La celda `RERUN_EXPERIMENTS` permite regenerarlos explícitamente. La explicación y algunos diagnósticos pueden recalcularse al ejecutar todas las celdas.
+## Protocolo
 
-Para inspeccionar MLflow:
+- Una fila representa una visita. Se estima compra/no compra antes de conocer el desenlace.
+- EDA: días 1–296. Train/validación: 1–296/297–404; 1–404/405–512; 1–512/513–620.
+- Cada trial evalúa tres folds internos anteriores. Parámetros por log loss media; umbral por F1 medio interno.
+- Optuna sin timeout ni máximo de trials: mínimo 50 completados y paciencia 30 sin mejora relevante de 0,0001. Los folds internos se ejecutan en paralelo y los trials secuencialmente.
+- Ranking y correlaciones aprendidos con días 1–120. El tamaño de 17 se seleccionó retrospectivamente en desarrollo: ver [criterios y variables](FEATURES.md).
+- Modelo final entrenado hasta 512. Test 621–730 desactivado por defecto; activar `EVALUATE_TEST` en la configuración, o `PROPENSION_EVALUATE_TEST=1` al ejecutar el script. Ese período ya se consultó y no es confirmación independiente.
+- El historial se actualiza con visitas anteriores conocidas; las variables de tienda excluyen el día actual. No se predice todo un período sin recibir nuevas observaciones.
 
-```powershell
-mlflow ui --backend-store-uri sqlite:///outputs/tracking/mlflow.db --host 127.0.0.1
-```
+## Resultados y trazabilidad
 
-No hace falta abrir esa interfaz para leer los notebooks. `outputs/tables/` contiene exportaciones para revisión; `outputs/figures/`, figuras; `outputs/optuna.db`, estado del optimizador; `outputs/tracking/`, registro MLflow. No publicar automáticamente datos ni bases de experimentos con identificadores de clientes.
+El notebook presenta precisión, recall, F1, ROC AUC, AP y log loss frente al histórico, por fold y con promedio de validación. Train es diagnóstico; una brecha pequeña no prueba ausencia de sobreajuste.
 
-## Metodología y límites
+Solo se escriben tres archivos en `outputs/lightgbm/`: `model.joblib`, `metrics.csv` y `execution.json`. El último guarda configuración, parámetros, trials, umbrales, tiempos y entorno de esta ejecución. Se regeneran al ejecutar el notebook. Los respaldos y la investigación no son dependencias de ejecución.
 
-- EDA interpretativo y auditoría descriptiva: días 1–296. La lectura valida la estructura del archivo completo. El EDA ampliado anticipa la propuesta 85/15; el modelado guardado conserva sus cortes originales.
-- Cuatro ventanas expansivas: entrenamiento hasta 200/296/392/488 y validación hasta 296/392/488/584.
-- Benchmark 585–730: **previamente consultado** en el prototipo, no test intacto.
-- Familias: logística, Random Forest, HistGradientBoosting, XGBoost, LightGBM y CatBoost. Referencias constante e histórica.
-- Selección por AP media; también dispersión, AUC, Brier, log loss y capacidad comercial.
-- Históricos estrictamente anteriores y preprocesamiento aprendido dentro del fold. El escenario es futuro de clientes conocidos.
-- Número de iteraciones optimizado explícitamente: **sin early stopping ni pruning** en esta ejecución, para completar todos los folds con un protocolo uniforme.
-- Calibración seleccionada cronológicamente en desarrollo, ablaciones sin retuning y diagnóstico anidado reducido de finalistas. Las familias ya observaron desarrollo: el diagnóstico no elimina todo sesgo de selección.
-- SHAP explica el estimador base antes de calibración; no demuestra causalidad.
+## Requisitos del PDF
 
-## Scoring
+| Requisito | Dónde se encuentra |
+|---|---|
+| EDA: patrones, anomalías y tendencias | Sección 2 del notebook |
+| Metodología y limpieza | Secciones 2–4; controles e imputación dentro de train |
+| Modelo, fine tuning, selección y explicabilidad | Secciones 4–6; comparación con histórico y SHAP |
+| Impacto por áreas y captura de valor | Sección 9; piloto y KPIs propuestos |
+| Operatividad y notebook paso a paso | Sección 8; scoring verificado y ejecución completa |
 
-```python
-import joblib
-from ferreyros_propension.data import score_visits
+La comparación histórica entre algoritmos se conserva en la rama `investigacion`; este recorrido reproduce únicamente LightGBM. La propensión no demuestra impacto incremental ni permite inventar ROI.
 
-bundle = joblib.load("outputs/model.joblib")
-predictions = score_visits(bundle, history, visits)
-```
-
-`history` contiene resultados observados en días estrictamente anteriores. `visits` contiene un solo día, identificadores y condiciones disponibles antes de comprar; no necesita resultado, marca o cantidad actuales. Los históricos se calculan internamente. La salida incluye cliente, día, probabilidad y versión. Cargar solo artefactos de origen confiable.
-
-Para el siguiente día, incorporar al historial los resultados realmente observados. No hay API, cloud ni monitoreo desplegado.
-
-## Verificar
-
-```powershell
-python -m pytest -q
-ruff check src tests notebooks
-ruff format --check src tests notebooks
-```
-
-Las pruebas cubren invariancia ante eventos futuros, exclusión del resultado actual, ventanas de calendario, scoring, nombres inválidos y ranking constante. El segundo notebook verifica la equivalencia entre modelo persistido y predicciones guardadas.
-
-Las cifras definitivas se consultan en las tablas y notebooks ejecutados, sin mantener manualmente resultados duplicados. El alcance y las decisiones están en [el plan](PLAN.md).
-
-## Diseño de las visualizaciones
-
-Las figuras y tablas utilizan una adaptación editorial propia: fondo blanco, azul profundo, acento azul, titulares con el hallazgo, cuadrícula reducida y notas de población y fuente. Las tipografías disponibles DejaVu Serif y Sans aportan contraste sin incorporar fuentes de marca. Las paletas son decisiones del proyecto, no especificaciones oficiales de McKinsey. En SHAP, el color y los signos conservan el significado de las contribuciones.
-
-Referencias consultadas: [identidad visual de McKinsey](https://www.mckinsey.com/about-us/new-at-mckinsey-blog/meet-the-new-mckinsey-look/), [caso de diseño de Wolff Olins](https://wolffolins.com/work/mckinsey) y [Vizro, repositorio público de McKinsey](https://github.com/mckinsey/vizro), con [temas y colores documentados](https://vizro.readthedocs.io/en/stable/pages/user-guides/themes/).
-
-Vizro ofrece temas reutilizables para Plotly y dashboards. Aquí se conservan Matplotlib y Seaborn para mantener el flujo existente; el estilo se centraliza en `plotting.py` y se reutiliza también en las explicaciones y tablas de los notebooks. No se utilizan logotipos ni se presenta el resultado como material oficial de la firma.
+Los entregables Word/TXT, documentación PDF y presentación PDF (máximo siete slides) se distribuyen por separado y se excluyen de Git mediante `entregables/`. La comparación histórica y las correlaciones están incluidas en el notebook; sus resultados históricos están identificados y enlazados a la revisión archivada.

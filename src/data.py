@@ -18,9 +18,16 @@ PROMOS = [f"promo_marca_{i}" for i in range(1, 6)]
 CATEGORICAL = ["genero", "estado_civil", "nivel_educacion", "ocupacion", "marca_previa"]
 
 
-def load_data(path: str | Path) -> pd.DataFrame:
+def load_data(path: str | Path, end_day: int | None = None) -> pd.DataFrame:
     """Lee sin modificar el origen; la clave cliente/día debe ser inequívoca."""
-    data = pd.read_csv(path).sort_values(["id", "dia_visita"]).reset_index(drop=True)
+    if end_day is None:
+        data = pd.read_csv(path)
+    else:
+        data = pd.concat(
+            chunk.loc[chunk.dia_visita.le(end_day)]
+            for chunk in pd.read_csv(path, chunksize=10000)
+        )
+    data = data.sort_values(["id", "dia_visita"]).reset_index(drop=True)
     if data.duplicated(["id", "dia_visita"]).any():
         raise ValueError("Hay visitas múltiples por cliente/día: falta orden intradía.")
     if not data.incidencia_compra.isin([0, 1]).all():
@@ -157,43 +164,3 @@ def features(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     for col in CATEGORICAL:
         predictors[col] = predictors[col].fillna(-1).astype(int).astype(str)
     return events, predictors
-
-
-def score_visits(
-    bundle: dict, history: pd.DataFrame, visits: pd.DataFrame
-) -> pd.DataFrame:
-    """Puntúa un día de visitas sin resultado con historia estrictamente previa."""
-    if visits.empty or visits.dia_visita.nunique() != 1:
-        raise ValueError("El lote debe contener un único día de scoring.")
-    required_columns = {"id", "dia_visita", *PROFILE, *PRICES, *PROMOS}
-    missing_columns = required_columns.difference(visits.columns)
-    if missing_columns:
-        raise ValueError(f"Faltan columnas de scoring: {sorted(missing_columns)}")
-    if visits[PRICES].isna().any().any() or (visits[PRICES] <= 0).any().any():
-        raise ValueError("Los precios de scoring deben ser positivos y conocidos.")
-    if not visits[PROMOS].isin([0, 1]).all().all():
-        raise ValueError("Las promociones de scoring deben ser binarias.")
-    if not history.empty and history.dia_visita.max() >= visits.dia_visita.min():
-        raise ValueError("El historial debe ser anterior al lote.")
-    pending_visits = visits.copy()
-    for col in ["incidencia_compra", "id_marca", "cantidad"]:
-        pending_visits[col] = np.nan
-    joined = pd.concat([history, pending_visits], ignore_index=True)
-    if joined.duplicated(["id", "dia_visita"]).any():
-        raise ValueError("Clave cliente/día duplicada.")
-    events, predictors = features(joined)
-    mask = events.dia_visita.eq(visits.dia_visita.iloc[0])
-    probabilities = bundle["model"].predict_proba(
-        predictors.loc[mask, bundle["columns"]]
-    )[:, 1]
-    if bundle.get("calibrator") is not None:
-        probabilities = bundle["calibrator"].predict_proba(
-            np.log(
-                np.clip(probabilities, 1e-6, 1 - 1e-6)
-                / (1 - np.clip(probabilities, 1e-6, 1 - 1e-6))
-            ).reshape(-1, 1)
-        )[:, 1]
-    result = events.loc[mask, ["id", "dia_visita"]].copy()
-    result["probabilidad"] = probabilities
-    result["version"] = bundle["version"]
-    return result

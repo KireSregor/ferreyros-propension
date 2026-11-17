@@ -1,8 +1,0 @@
-variable,hipotesis,coincidencia
-ultima_marca_comprada,visita_anterior,1.0
-ultima_marca_comprada,compra_anterior,0.42805001164867595
-ultima_marca_comprada,evento_actual,0.6958142424477751
-ultima_cantidad_comprada,visita_anterior,0.829463384328648
-ultima_cantidad_comprada,compra_anterior,0.2575133959773239
-ultima_cantidad_comprada,evento_actual,0.6514716160596412
-ultima_cantidad_comprada,incidencia_visita_anterior,1.0
