@@ -76,40 +76,59 @@ def show_search(run):
 
 
 def show_results(table):
-    """Promedios por fold y curvas separadas de train/validación contra el baseline."""
+    """Promedios por fold y barras de train/validación contra el histórico."""
     apply_theme()
     validation = table.loc[table.split.eq("Validación")]
     summary = validation.groupby("model", as_index=False)[
         ["precision", "recall", "f1", "auc", "ap", "logloss"]
     ].mean()
     metric_table(summary)
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
+    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
+    series = [
+        ("LightGBM", "Train", "#A9BBFF"),
+        ("LightGBM", "Validación", BLUE),
+        ("Histórico", "Train", "#A3D6D7"),
+        ("Histórico", "Validación", TEAL),
+    ]
+    positions = np.arange(3)
+    width = 0.19
     for ax, metric, label in zip(
         axes, ["precision", "recall", "f1"], ["Precisión", "Recall", "F1"]
     ):
-        for model, color in [("LightGBM", BLUE), ("Histórico", TEAL)]:
-            for split, style in [("Train", "--"), ("Validación", "-")]:
-                part = table.loc[
-                    table.model.eq(model) & table.split.eq(split)
-                ].sort_values("cut")
-                ax.plot(
-                    range(1, len(part) + 1),
-                    part[metric],
-                    style,
-                    marker="o",
-                    color=color,
-                    label=f"{model} · {split}",
-                )
-        ax.set(title=label, xlabel="Fold temporal", ylim=(0, 1), xticks=[1, 2, 3])
+        for index, (model, split, color) in enumerate(series):
+            part = table.loc[table.model.eq(model) & table.split.eq(split)].sort_values(
+                "cut"
+            )
+            bars = ax.bar(
+                positions + (index - 1.5) * width,
+                part[metric],
+                width,
+                color=color,
+                label=f"{model} · {split}",
+            )
+            ax.bar_label(
+                bars,
+                labels=[f"{100 * x:.1f}" for x in part[metric]],
+                padding=3,
+                fontsize=8,
+                rotation=90,
+            )
+        ax.set(
+            title=label,
+            xlabel="Fold",
+            ylim=(0, 0.82),
+            xticks=positions,
+            xticklabels=["1\nVal. 297–404", "2\nVal. 405–512", "3\nVal. 513–620"],
+        )
         ax.yaxis.set_major_formatter(PercentFormatter(1))
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=2, frameon=False)
+    fig.legend(handles, labels, loc="lower center", ncol=4, frameon=False)
     fig.suptitle(
-        "Validación frente a train: comparar ambos con la referencia histórica",
+        "Entrenamiento y validación por fold · comparación con el histórico",
         x=0.04,
         ha="left",
     )
-    fig.tight_layout(rect=(0, 0.17, 1, 0.93))
+    fig.tight_layout(rect=(0, 0.14, 1, 0.93))
     display(fig)
     plt.close(fig)
     final = validation.loc[validation.cut.eq(512)].set_index("model")
@@ -177,3 +196,50 @@ def show_correlations(events, candidates, ranking):
     pairs = pd.DataFrame(pairs).sort_values("Spearman", key=abs, ascending=False)
     display(pairs.head(8).style.format({"Spearman": "{:.3f}"}).hide(axis="index"))
     return pairs
+
+
+def show_final_results(table):
+    """Resultados del modelo final y del promedio de validación, sin mezclar muestras."""
+    model = table.loc[table.model.eq("LightGBM")]
+    columns = ["precision", "recall", "f1", "auc", "ap", "logloss"]
+    mean = model.loc[model.split.eq("Validación"), columns].mean().to_dict()
+    mean["split"] = "Validación · promedio de 3 folds"
+    final = model.loc[
+        model.cut.eq(512) & model.split.isin(["Train", "Validación", "Test"]),
+        ["split", "n", *columns],
+    ].copy()
+    final["split"] = final["split"].replace(
+        {
+            "Train": "Train · 1–512",
+            "Validación": "Validación · 513–620",
+            "Test": "Test · 621–730",
+        }
+    )
+    metric_table(final)
+    metric_table(pd.DataFrame([mean]))
+
+
+def show_predictions(scored, raw, threshold):
+    """Ejemplos legibles; el resultado real se incorpora después de predecir."""
+    example = scored.head().merge(
+        raw[["id", "dia_visita", "incidencia_compra"]],
+        on=["id", "dia_visita"],
+        validate="one_to_one",
+    )
+    example["prediction"] = example.prediction.map({1: "Compra", 0: "No compra"})
+    example["incidencia_compra"] = example.incidencia_compra.map(
+        {1: "Compra", 0: "No compra"}
+    )
+    example = example.rename(
+        columns={
+            "id": "Cliente",
+            "dia_visita": "Día",
+            "probability": "Probabilidad de compra",
+            "prediction": "Predicción",
+            "incidencia_compra": "Resultado observado",
+        }
+    )
+    display(Markdown(f"**Umbral de decisión: {threshold:.1%}.**"))
+    display(
+        example.style.format({"Probabilidad de compra": "{:.1%}"}).hide(axis="index")
+    )

@@ -126,6 +126,11 @@ def save_run(output, runs, results, config, data_path, started):
             str(cut): run["bundle"]["threshold"] for cut, run in runs.items()
         },
         "seconds": time.perf_counter() - started,
+        "evaluation_context": {
+            "test_days": [621, 730],
+            "test_previously_reviewed": True,
+            "test_used_for_refitting_this_run": False,
+        },
     }
     (output / "execution.json").write_text(
         json.dumps(trace, indent=2), encoding="utf-8"

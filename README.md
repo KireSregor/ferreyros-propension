@@ -41,7 +41,7 @@ Los módulos están directamente en `src`; `__init__.py` permite imports relativ
 - Cada trial evalúa tres folds internos anteriores. Parámetros por log loss media; umbral por F1 medio interno.
 - Optuna sin timeout ni máximo de trials: mínimo 50 completados y paciencia 30 sin mejora relevante de 0,0001. Los folds internos se ejecutan en paralelo y los trials secuencialmente.
 - Ranking y correlaciones aprendidos con días 1–120. El tamaño de 17 se seleccionó retrospectivamente en desarrollo: ver [criterios y variables](FEATURES.md).
-- Modelo final entrenado hasta 512. Test 621–730 desactivado por defecto; activar `EVALUATE_TEST` en la configuración, o `PROPENSION_EVALUATE_TEST=1` al ejecutar el script. Ese período ya se consultó y no es confirmación independiente.
+- Modelo final entrenado hasta 512. El notebook muestra la evaluación final en test 621–730 sin reajuste. Ese período se revisó durante el desarrollo; se recomienda confirmar el resultado con nuevas observaciones.
 - El historial se actualiza con visitas anteriores conocidas; las variables de tienda excluyen el día actual. No se predice todo un período sin recibir nuevas observaciones.
 
 ## Resultados y trazabilidad
