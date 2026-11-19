@@ -7,7 +7,7 @@ from .data import PRICES, PROMOS, features
 
 
 def reviewed_features(data):
-    """Version review_v1: customer history plus strictly prior store-day signals."""
+    """Combina el historial del cliente con indicadores de tienda hasta el día anterior."""
     events, predictors = monthly_trend_features(data)
     groups = events.groupby("id", sort=False)
     extra = {}
@@ -104,11 +104,7 @@ def monthly_trend_features(data):
 
 
 def enriched_features(data):
-    """Extiende variables base sin usar resultados actuales ni futuros.
-
-    Los ciclos de 7/30 días son fases relativas al inicio, no fechas inventadas.
-    ID se usa como categoría de clientes conocidos, nunca como magnitud ordinal.
-    """
+    """Construye variables candidatas de frecuencia, intervalos y preferencias."""
     events, predictors = features(data)
     groups = events.groupby("id", sort=False)
     target = events.incidencia_compra

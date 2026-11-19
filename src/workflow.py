@@ -16,13 +16,54 @@ from .feature_research import reviewed_features
 from .training import (
     evaluate_bundle,
     f1_threshold,
-    historical_frames,
     inner_predictions,
-    metrics,
+    ranking_metrics,
     score_visits,
     train_window,
     tune_fold,
 )
+
+BASELINES = {"Histórico": "tasa_previa", "Tasa mensual": "month_recent_smoothed"}
+
+
+def rank_deciles(frame, cut, split, seed):
+    """Rank each period separately and break score ties without using outcomes."""
+    target = frame.y.to_numpy()
+    tie_order = np.random.default_rng(seed).permutation(len(target))
+    boundaries = np.arange(11) * len(target) // 10
+    ranked = target[np.lexsort((tie_order, -frame.p.to_numpy()))]
+    return [
+        {
+            "model": "LightGBM",
+            "cut": cut,
+            "split": split,
+            "decile": decile,
+            "visits": int(end - start),
+            "purchases": int(ranked[start:end].sum()),
+        }
+        for decile, (start, end) in enumerate(
+            zip(boundaries[:-1], boundaries[1:], strict=True), 1
+        )
+    ]
+
+
+def evaluate_period(events, features, bundle, start, end, split, seed):
+    """Use the same visits and realized outcomes for all three scoring rules."""
+    cut = bundle["training_end"]
+    row, frame = evaluate_bundle(events, features, bundle, start, end)
+    results = [{"model": "LightGBM", "cut": cut, "split": split, **row}]
+    for model, column in BASELINES.items():
+        results.append(
+            {
+                "model": model,
+                "cut": cut,
+                "split": split,
+                "n": len(frame),
+                **ranking_metrics(frame.y, features.loc[frame.index, column]),
+            }
+        )
+    deciles = [] if split == "Train" else rank_deciles(frame, cut, split, seed)
+    return results, frame.p.to_numpy(), deciles
 
 
 def run_fold(events, features, candidate_features, cut, end, config):
@@ -38,32 +79,24 @@ def run_fold(events, features, candidate_features, cut, end, config):
         parameters=parameters,
         feature_builder_version="lightgbm_v1",
     )
-    baseline_threshold = f1_threshold(
-        historical_frames(events, candidate_features, cut)
-    )
-    for split, a, b in [("Train", 1, cut), ("Validación", cut + 1, end)]:
-        row, frame = evaluate_bundle(events, features, bundle, a, b)
-        results.append({"model": "LightGBM", "cut": cut, "split": split, **row})
-        stored_predictions[f"lightgbm_{cut}_{split}"] = frame.p.to_numpy()
-        mask = events.dia_visita.between(a, b)
-        results.append(
-            {
-                "model": "Histórico",
-                "cut": cut,
-                "split": split,
-                "n": int(mask.sum()),
-                **metrics(
-                    events.loc[mask, "incidencia_compra"],
-                    candidate_features.loc[mask, "tasa_previa"],
-                    baseline_threshold,
-                ),
-            }
+    for split, start, finish in [("Train", 1, cut), ("Validación", cut + 1, end)]:
+        rows, probabilities, deciles = evaluate_period(
+            events,
+            candidate_features,
+            bundle,
+            start,
+            finish,
+            split,
+            config.seed,
         )
+        results.extend(rows)
+        stored_predictions[f"lightgbm_{cut}_{split}"] = probabilities
     return {
         "study": study,
         "bundle": bundle,
         "metrics": results,
         "predictions": stored_predictions,
+        "deciles": deciles,
     }
 
 
@@ -79,19 +112,28 @@ def verify_scoring(bundle, raw, validation_predictions, events, day=620):
     return scored
 
 
-def evaluate_test(bundle, data_path):
+def evaluate_test(run, data_path, config):
     """Evalúa 621–730 con modelo y umbral ya congelados; no entrena ni selecciona."""
     complete = load_data(data_path, end_day=730)
     events, features = reviewed_features(complete)
-    row, _ = evaluate_bundle(events, features, bundle, 621, 730)
-    return {"model": "LightGBM", "cut": bundle["training_end"], "split": "Test", **row}
+    results, _, deciles = evaluate_period(
+        events,
+        features,
+        run["bundle"],
+        621,
+        730,
+        "Test",
+        config.seed,
+    )
+    return results, deciles
 
 
-def save_run(output, runs, results, config, data_path, started):
+def save_run(output, runs, results, deciles, config, data_path, started):
     """Guarda únicamente modelo, métricas y trazabilidad de esta ejecución."""
     output.mkdir(parents=True, exist_ok=True)
     bundle = runs[512]["bundle"]
     pd.DataFrame(results).to_csv(output / "metrics.csv", index=False)
+    pd.DataFrame(deciles).to_csv(output / "deciles.csv", index=False)
     joblib.dump(bundle, output / "model.joblib")
     trace = {
         "model_schema": {

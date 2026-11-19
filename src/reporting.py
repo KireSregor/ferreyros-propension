@@ -6,8 +6,10 @@ import pandas as pd
 from IPython.display import Markdown, display
 from matplotlib.ticker import PercentFormatter
 
-from .plotting import BLUE, TEAL, apply_theme
+from .plotting import BLUE, GRAY, apply_theme
 from .training import INNER_FOLDS, OUTER_FOLDS
+
+RANK_METRICS = ["auc", "ks", "gini"]
 
 
 def show_eda(result):
@@ -28,6 +30,8 @@ def metric_table(table):
         "recall": "Recall",
         "f1": "F1",
         "auc": "ROC AUC",
+        "ks": "KS",
+        "gini": "Gini",
         "ap": "AP",
         "logloss": "Log loss",
     }
@@ -36,6 +40,8 @@ def metric_table(table):
         "Recall": "{:.1%}",
         "F1": "{:.1%}",
         "ROC AUC": "{:.3f}",
+        "KS": "{:.3f}",
+        "Gini": "{:.1%}",
         "AP": "{:.3f}",
         "Log loss": "{:.3f}",
         "Visitas": "{:,.0f}",
@@ -72,72 +78,84 @@ def show_search(run):
             f" · {study.user_attrs['seconds']:.1f} s"
         )
     )
-    metric_table(pd.DataFrame(run["metrics"]))
+    table = pd.DataFrame(run["metrics"])
+    metric_table(table.loc[table.model.eq("LightGBM"), ["split", "n", *RANK_METRICS]])
 
 
 def show_results(table):
-    """Promedios por fold y barras de train/validación contra el histórico."""
-    apply_theme()
-    validation = table.loc[table.split.eq("Validación")]
-    summary = validation.groupby("model", as_index=False)[
-        ["precision", "recall", "f1", "auc", "ap", "logloss"]
-    ].mean()
-    metric_table(summary)
-    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
-    series = [
-        ("LightGBM", "Train", "#A9BBFF"),
-        ("LightGBM", "Validación", BLUE),
-        ("Histórico", "Train", "#A3D6D7"),
-        ("Histórico", "Validación", TEAL),
-    ]
-    positions = np.arange(3)
-    width = 0.19
-    for ax, metric, label in zip(
-        axes, ["precision", "recall", "f1"], ["Precisión", "Recall", "F1"]
-    ):
-        for index, (model, split, color) in enumerate(series):
-            part = table.loc[table.model.eq(model) & table.split.eq(split)].sort_values(
-                "cut"
-            )
-            bars = ax.bar(
-                positions + (index - 1.5) * width,
-                part[metric],
-                width,
-                color=color,
-                label=f"{model} · {split}",
-            )
-            ax.bar_label(
-                bars,
-                labels=[f"{100 * x:.1f}" for x in part[metric]],
-                padding=3,
-                fontsize=8,
-                rotation=90,
-            )
-        ax.set(
-            title=label,
-            xlabel="Fold",
-            ylim=(0, 0.82),
-            xticks=positions,
-            xticklabels=["1\nVal. 297–404", "2\nVal. 405–512", "3\nVal. 513–620"],
-        )
-        ax.yaxis.set_major_formatter(PercentFormatter(1))
-    handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=4, frameon=False)
-    fig.suptitle(
-        "Entrenamiento y validación por fold · comparación con el histórico",
-        x=0.04,
-        ha="left",
+    """Compara las reglas en una tabla, con igual peso por fold."""
+    splits = ["Train", "Validación", "Test"]
+    mean = table.groupby(["model", "split"])[RANK_METRICS].mean()
+    comparison = mean.unstack("split")
+    comparison = comparison.reindex(
+        columns=pd.MultiIndex.from_product([RANK_METRICS, splits])
     )
-    fig.tight_layout(rect=(0, 0.14, 1, 0.93))
+    comparison = comparison.sort_values(("auc", "Validación"), ascending=False)
+    comparison = comparison.rename(
+        columns=dict(zip(RANK_METRICS, ["ROC AUC", "KS", "Gini"], strict=True)),
+        level=0,
+    )
+    formats = {
+        column: "{:.1%}" if column[0] == "Gini" else "{:.3f}"
+        for column in comparison.columns
+    }
+    display(comparison.rename_axis("Método").style.format(formats))
+
+
+def decile_summary(rows):
+    """Suma deciles de períodos ya ordenados por separado y deriva sus tasas."""
+    table = (
+        pd.DataFrame(rows)
+        .groupby(["model", "decile"], as_index=False)[["visits", "purchases"]]
+        .sum()
+    )
+    by_model = table.groupby("model", sort=False)
+    table["conversion"] = table.purchases / table.visits
+    table["coverage"] = by_model.visits.cumsum() / by_model.visits.transform("sum")
+    table["capture"] = by_model.purchases.cumsum() / by_model.purchases.transform("sum")
+    return table
+
+
+def show_deciles(rows, title):
+    """Muestra la ganancia acumulada y la tabla de los diez tramos."""
+    apply_theme()
+    table = decile_summary(rows)
+    fig, axis = plt.subplots(figsize=(8, 4.5))
+    axis.plot([0, 1], [0, 1], "--", color=GRAY, label="Al azar")
+    axis.plot(
+        np.r_[0, table.coverage],
+        np.r_[0, table.capture],
+        "o-",
+        color=BLUE,
+        label="LightGBM",
+    )
+    axis.set(
+        title=title,
+        xlabel="Visitas priorizadas",
+        ylabel="Compras reales capturadas",
+        xlim=(0, 1),
+        ylim=(0, 1.03),
+        xticks=np.linspace(0, 1, 11),
+    )
+    axis.xaxis.set_major_formatter(PercentFormatter(1))
+    axis.yaxis.set_major_formatter(PercentFormatter(1))
+    axis.legend(loc="lower right")
+    fig.tight_layout()
     display(fig)
     plt.close(fig)
-    final = validation.loc[validation.cut.eq(512)].set_index("model")
-    delta = 100 * (final.loc["LightGBM", "f1"] - final.loc["Histórico", "f1"])
+    counts = table.rename(
+        columns={
+            "decile": "Decil",
+            "visits": "Visitas",
+            "purchases": "Compras",
+            "conversion": "Conversión",
+            "capture": "Compras capturadas",
+        }
+    )
     display(
-        Markdown(
-            f"**Último fold:** el F1 de LightGBM cambia **{delta:+.2f} puntos** frente al histórico. "
-            "La mejora debe juzgarse junto con precisión, recall y estabilidad; no demuestra impacto comercial."
-        )
+        counts[["Decil", "Visitas", "Compras", "Conversión", "Compras capturadas"]]
+        .style.format({"Conversión": "{:.1%}", "Compras capturadas": "{:.1%}"})
+        .hide(axis="index")
     )
 
 
@@ -196,33 +214,40 @@ def show_correlations(events, candidates, ranking):
     return pairs
 
 
-def show_final_results(table):
-    """Resultados del modelo final y del promedio de validación, sin mezclar muestras."""
-    model = table.loc[table.model.eq("LightGBM")]
-    columns = ["precision", "recall", "f1", "auc", "ap", "logloss"]
-    mean = model.loc[model.split.eq("Validación"), columns].mean().to_dict()
-    mean["split"] = "Validación · promedio de 3 folds"
-    final = model.loc[
-        model.cut.eq(512) & model.split.isin(["Train", "Validación", "Test"]),
-        ["split", "n", *columns],
-    ].copy()
-    final["split"] = final["split"].replace(
-        {
-            "Train": "Train · 1–512",
-            "Validación": "Validación · 513–620",
-            "Test": "Test · 621–730",
-        }
+def show_final_results(table, threshold):
+    """Muestra decisiones al umbral interno frente a las compras observadas."""
+    test = table.loc[table.split.eq("Test") & table.model.eq("LightGBM")]
+    display(
+        Markdown(
+            f"**Decisión por visita en test.** LightGBM predice compra "
+            f"cuando el puntaje alcanza el umbral de {threshold:.1%}."
+        )
     )
-    metric_table(final)
-    metric_table(pd.DataFrame([mean]))
+    row = test.iloc[0]
+    counts = pd.DataFrame(
+        [
+            [row.true_positives, row.false_negatives],
+            [row.false_positives, row.true_negatives],
+        ],
+        index=pd.Index(["Compró", "No compró"], name="Resultado observado"),
+        columns=["Predijo compra", "Predijo ausencia de compra"],
+        dtype=int,
+    )
+    counts["Visitas"] = counts.sum(axis=1)
+    display(counts)
+    metric_table(test[["precision", "recall", "f1", "logloss"]])
 
 
 def show_predictions(scored, raw, threshold):
     """Ejemplos legibles; el resultado real se incorpora después de predecir."""
-    example = scored.head().merge(
-        raw[["id", "dia_visita", "incidencia_compra"]],
-        on=["id", "dia_visita"],
-        validate="one_to_one",
+    example = (
+        scored.sort_values(["probability", "id"], ascending=[False, True])
+        .head()
+        .merge(
+            raw[["id", "dia_visita", "incidencia_compra"]],
+            on=["id", "dia_visita"],
+            validate="one_to_one",
+        )
     )
     example["prediction"] = example.prediction.map({1: "Compra", 0: "No compra"})
     example["incidencia_compra"] = example.incidencia_compra.map(
@@ -232,12 +257,18 @@ def show_predictions(scored, raw, threshold):
         columns={
             "id": "Cliente",
             "dia_visita": "Día",
-            "probability": "Probabilidad de compra",
+            "probability": "Probabilidad estimada",
             "prediction": "Predicción",
             "incidencia_compra": "Resultado observado",
         }
     )
-    display(Markdown(f"**Umbral de decisión: {threshold:.1%}.**"))
+    example.insert(0, "Prioridad", range(1, len(example) + 1))
     display(
-        example.style.format({"Probabilidad de compra": "{:.1%}"}).hide(axis="index")
+        Markdown(
+            f"**Primeras cinco visitas del día, por puntaje.** "
+            f"El umbral de {threshold:.1%} se usa para la decisión binaria."
+        )
+    )
+    display(
+        example.style.format({"Probabilidad estimada": "{:.1%}"}).hide(axis="index")
     )

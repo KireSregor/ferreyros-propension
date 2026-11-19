@@ -12,11 +12,13 @@ from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import (
     average_precision_score,
+    confusion_matrix,
     f1_score,
     log_loss,
     precision_score,
     recall_score,
     roc_auc_score,
+    roc_curve,
 )
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import OneHotEncoder
@@ -68,15 +70,30 @@ class StagnationStopper:
             study.stop()
 
 
+def ranking_metrics(y, p):
+    auc = roc_auc_score(y, p)
+    fpr, tpr, _ = roc_curve(y, p)
+    return {
+        "auc": auc,
+        "ks": float(np.max(tpr - fpr)),
+        "gini": 2 * auc - 1,
+    }
+
+
 def metrics(y, p, threshold):
     labels = np.asarray(p) >= threshold
+    tn, fp, fn, tp = confusion_matrix(y, labels, labels=[0, 1]).ravel()
     return {
+        **ranking_metrics(y, p),
         "precision": precision_score(y, labels, zero_division=0),
         "recall": recall_score(y, labels, zero_division=0),
         "f1": f1_score(y, labels, zero_division=0),
-        "auc": roc_auc_score(y, p),
         "ap": average_precision_score(y, p),
         "logloss": log_loss(y, p),
+        "true_negatives": int(tn),
+        "false_positives": int(fp),
+        "false_negatives": int(fn),
+        "true_positives": int(tp),
     }
 
 
@@ -308,18 +325,6 @@ def compact_features(events, features, config, count=17):
             columns.append(column)
     columns = columns[:count]
     return features[columns].copy(), ranking.reset_index(drop=True)
-
-
-def historical_frames(events, features, cut):
-    frames = []
-    for train_end, end in INNER_FOLDS[cut]:
-        mask = events.dia_visita.between(train_end + 1, end)
-        frame = events.loc[mask, ["incidencia_compra"]].rename(
-            columns={"incidencia_compra": "y"}
-        )
-        frame["p"] = features.loc[mask, "tasa_previa"]
-        frames.append(frame)
-    return frames
 
 
 def score_visits(bundle, history, visits):

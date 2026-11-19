@@ -1,8 +1,8 @@
-# Las 17 variables del modelo depurado
+# Las 17 variables de LightGBM
 
-El constructor genera candidatos y dependencias históricas, pero LightGBM recibe solo estas 17 columnas. El ranking SHAP y las correlaciones se aprenden con días 1–120, antes de las validaciones internas. Entre las primeras 25 variables del ranking se elimina la que tenga correlación Spearman absoluta ≥0,90 con otra conservada.
+Cada fila representa una visita. El modelo combina el historial del cliente y de la tienda hasta el día anterior con las ofertas y el perfil disponibles en esa visita.
 
-Se compararon 10, 15 y 17 variables con tuning propio en los tres folds internos del último corte, frente al modelo de 25. Se eligió el menor conjunto cuya log loss interna no empeorara más de 0,001 respecto al mejor. Esta es una elección retrospectiva de desarrollo; no se afirma independencia de los primeros folds ni significancia estadística por una prueba de hipótesis. No intervino el test.
+Los días 1–120 sirvieron para ordenar los candidatos por contribución SHAP. Entre los primeros 25, se descartó cada candidato que ya tenía una correlación absoluta de Spearman de al menos 0,90 con una variable conservada. Se compararon conjuntos de 10, 15, 17 y 25 variables en las tres validaciones internas del último corte, ajustando cada conjunto por separado. Se eligió el conjunto más pequeño cuya *log loss* quedó a 0,001 o menos de la mejor. La selección se realizó con datos de desarrollo.
 
 | Variable | Definición antes del resultado actual |
 |---|---|
@@ -10,22 +10,22 @@ Se compararon 10, 15 y 17 variables con tuning propio en los tres folds internos
 | `precio_relativo_4` | Precio actual de marca 4 dividido entre el mínimo actual de las cinco marcas. |
 | `intervalo_compra_medio_previo` | Media de intervalos entre compras reales anteriores. |
 | `dias_desde_visita` | Días desde la visita anterior del cliente. |
-| `month_recent_smoothed` | Tasa de compras en últimos 30 días, suavizada hacia los 90 anteriores con fuerza 5. |
+| `month_recent_smoothed` | Proporción de visitas con compra en los últimos 30 días, suavizada con el historial de los 90 días anteriores a esa ventana. |
 | `unidades_por_dia_desde_compra` | Cantidad de la última compra real dividida entre días desde ella más 1. |
 | `precio_relativo_1` | Precio actual de marca 1 dividido entre el mínimo de las cinco marcas. |
-| `month_visits_31_60` | Visitas entre 31 y 60 días anteriores: ventana relativa, no mes calendario. |
-| `ingreso_anual` | Ingreso suministrado; no se inventa moneda. |
+| `month_visits_31_60` | Visitas del cliente entre 31 y 60 días antes de la visita actual. |
+| `ingreso_anual` | Ingreso anual del cliente en la unidad registrada en la base. |
 | `dias_desde_compra` | Días desde la última compra real anterior. |
-| `tienda_tasa_60` | Compras/visitas de tienda en los 60 días anteriores, suavizado `(compras+1)/(visitas+4)`, excluyendo el día actual. |
+| `tienda_tasa_60` | Tasa de compra de la tienda en los 60 días anteriores, calculada como (compras + 1) / (visitas + 4). |
 | `precio_relativo_5` | Precio actual de marca 5 dividido entre el mínimo de las cinco marcas. |
 | `recencia_compra_relativa` | Días desde compra divididos entre intervalo medio previo de compra. |
 | `promo_marca_1` | Promoción de marca 1 conocida antes de la compra. |
-| `precio_vs_anterior60_5` | Precio actual de marca 5 dividido entre su mediana en los 60 días previos; mínimo 5 precios diarios anteriores. |
+| `precio_vs_anterior60_5` | Precio actual de marca 5 dividido por su mediana en los 60 días previos. Requiere al menos cinco precios diarios anteriores. |
 | `intervalo_visita_medio_previo` | Media de intervalos entre visitas anteriores. |
 | `month_rate_change` | Tasa de compra de los últimos 30 días menos la de los 30 anteriores. |
 
-No se usan ID, fecha absoluta, tamaño de ciudad ni marca/cantidad del resultado actual como predictores. Las cantidades y marcas actuales solo pueden alimentar visitas posteriores. Los campos originales de última compra no se interpretan como última compra real sin reconstruir su historia.
+**Cómo se calcula la tasa mensual.** Al número de compras de los últimos 30 días se le suman cinco veces la tasa de los 90 días anteriores a esa ventana. El resultado se divide entre las visitas de los últimos 30 días más cinco. La tasa de referencia de 90 días se calcula como (compras + 1) / (visitas + 4). Así, cuando hay pocas visitas recientes, el historial anterior tiene mayor peso.
 
-Las ventanas excluyen el día actual y usan el historial observado. Sin suficiente historial se conservan faltantes y se imputan dentro del train de cada ajuste; no se inventan compras. Los ceros de precio ponderado sin preferencias, cuando actúan como candidatos del piloto, no son precios reales cero.
+El identificador del cliente y el día sirven para reconstruir el historial. La marca y la cantidad de la visita se conocen después de comprar y pueden alimentar visitas posteriores. El diccionario de origen indica excluir el tamaño de la ciudad.
 
-La correlación alta señala redundancia potencial, no inutilidad universal. La versión de 17 sacrifica algo de F1 respecto a 25 en el último período de desarrollo a cambio de simplicidad; su log loss interna quedó dentro de la tolerancia fijada. Los esquemas y parámetros efectivos se guardan en `outputs/lightgbm/execution.json`, campo `model_schema`.
+Cuando una variable carece de historial suficiente, el modelo aplica la imputación aprendida en el entrenamiento de ese corte. El campo `model_schema` de `outputs/lightgbm/execution.json` registra las columnas y los parámetros utilizados.
